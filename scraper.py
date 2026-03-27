@@ -20,44 +20,52 @@ def scrape_jobteaser(email, password, keywords):
     
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
-        # On garde un User-Agent propre
         context = browser.new_context(viewport={'width': 1280, 'height': 800})
         page = context.new_page()
         
         try:
-            # 1. On va sur l'accueil du portail école
+            # 1. Accès au portail
+            print(f"🤖 [ROBOT] ÉTAPE 1 : Chargement de https://ec-lyon.jobteaser.com/ ...")
             page.goto("https://ec-lyon.jobteaser.com/", wait_until="domcontentloaded")
-            
-            # Si on n'est pas déjà sur le formulaire, on clique sur "Se connecter" ou on attend le redirect
-            # JobTeaser redirige souvent vers /fr/users/sign_in automatiquement
             time.sleep(2)
+            print(f"🤖 [ROBOT] URL actuelle après chargement : {page.url}")
+            print(f"🤖 [ROBOT] Titre de la page : '{page.title()}'")
             
-            # 2. Saisie des identifiants (Playwright attendra que les champs soient visibles)
+            # 2. Saisie des identifiants
+            print(f"🤖 [ROBOT] ÉTAPE 2 : Saisie des identifiants pour {email}...")
             page.fill('input[type="email"]', email)
             page.fill('input[type="password"]', password)
-            print(f"🤖 [ROBOT] Saisie des identifiants et validation...")
             page.keyboard.press("Enter")
             
-            # 3. On attend que la page des offres charge (preuve de connexion réussie)
-            # On vise spécifiquement le domaine ec-lyon
+            # 3. Attente de la connexion
+            print(f"🤖 [ROBOT] ÉTAPE 3 : Attente de la redirection post-connexion...")
             page.wait_for_url("https://ec-lyon.jobteaser.com/**", timeout=30000)
-            print(f"🤖 [ROBOT] ✅ Connecté au portail EC-LYON. URL : {page.url}")
+            print(f"🤖 [ROBOT] ✅ CONNECTÉ ! URL de destination : {page.url}")
 
             # 4. Boucle de recherche
             for kw in keywords:
                 kw_encoded = kw.replace(' ', '+')
                 search_url = f"https://ec-lyon.jobteaser.com/fr/job-offers?query={kw_encoded}&q={kw_encoded}"
                 
-                print(f"🤖 [ROBOT] Recherche : {kw}")
+                print(f"---")
+                print(f"🤖 [ROBOT] RECHERCHE EN COURS : '{kw}'")
+                print(f"🤖 [ROBOT] Je me rends sur : {search_url}")
+                
                 page.goto(search_url)
+                # On attend que la page soit stable
+                page.wait_for_load_state("domcontentloaded")
+                print(f"🤖 [ROBOT] Page chargée. URL confirmée : {page.url}")
                 
                 try:
                     # On attend que les cartes d'offres apparaissent
+                    print(f"🤖 [ROBOT] J'attends l'apparition des balises <article>...")
                     page.wait_for_selector('article', timeout=15000)
                     time.sleep(3) 
                     
                     offers = page.locator('article').all()
-                    count_kw = 0
+                    count_kw = len(offers)
+                    print(f"🤖 [ROBOT] 🎯 TROUVÉ : {count_kw} offres détectées pour '{kw}'.")
+                    
                     for offer in offers:
                         try:
                             title = offer.locator('h2, h3').first.inner_text()
@@ -65,7 +73,6 @@ def scrape_jobteaser(email, password, keywords):
                             link = offer.locator('a').first.get_attribute('href')
                             
                             if title and company and link:
-                                # On reste sur le domaine école pour le lien final
                                 full_link = f"https://ec-lyon.jobteaser.com{link}" if link.startswith('/') else link
                                 results.append({
                                     'title': title.strip(),
@@ -74,15 +81,14 @@ def scrape_jobteaser(email, password, keywords):
                                     'job_url': full_link,
                                     'site': 'jobteaser'
                                 })
-                                count_kw += 1
                         except: continue
-                    print(f"🤖 [ROBOT] -> {count_kw} offres trouvées pour ce mot-clé.")
-                except:
-                    print(f"🤖 [ROBOT] ⚠️ Pas d'offres visibles pour '{kw}'.")
+                except Exception as e:
+                    print(f"🤖 [ROBOT] ❌ ÉCHEC : Aucune offre trouvée ou timeout sur cette page.")
+                    print(f"🤖 [ROBOT] Diagnostic : Je suis sur '{page.url}' et le titre est '{page.title()}'")
 
         except Exception as e:
-            print(f"🤖 [ROBOT] ❌ Erreur : {e}")
-            print(f"🤖 [ROBOT] Page d'arrêt : {page.url}")
+            print(f"🤖 [ROBOT] ❌ ERREUR FATALE : {e}")
+            print(f"🤖 [ROBOT] Position finale du robot : {page.url}")
         finally:
             browser.close()
     
