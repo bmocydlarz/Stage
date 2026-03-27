@@ -4,6 +4,7 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 from playwright.sync_api import sync_playwright
 import os, json, time, random
+import urllib.parse
 
 # --- 1. INITIALISATION FIREBASE ---
 def init_firebase():
@@ -16,7 +17,7 @@ def init_firebase():
 # --- 2. FONCTION SCRAPING JOBTEASER ---
 def scrape_jobteaser(email, password, keywords):
     results = []
-    print(f"🤖 [ROBOT] Analyse du HTML réel (Sélecteurs Skiller)...")
+    print(f"🤖 [ROBOT] Mode Debug HTML activé...")
     
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
@@ -34,55 +35,57 @@ def scrape_jobteaser(email, password, keywords):
         
         try:
             for kw in keywords:
-                search_url = f"https://ec-lyon.jobteaser.com/fr/job-offers?query={kw.replace(' ', '+')}"
-                print(f"---")
-                print(f"🤖 [ROBOT] Recherche : {kw}")
+                # Encodage propre du mot-clé
+                kw_encoded = urllib.parse.quote_plus(kw)
+                search_url = f"https://ec-lyon.jobteaser.com/fr/job-offers?query={kw_encoded}"
                 
-                try:
-                    # 1. On y va, mais on n'attend PAS que tout le réseau soit calme
-                    page.goto(search_url, wait_until="commit") 
-                    
-                    # 2. On attend spécifiquement qu'UNE carte d'offre soit visible (max 20s)
-                    # C'est BEAUCOUP plus fiable que networkidle
-                    print("🤖 [ROBOT] Attente de l'apparition des offres...")
-                    page.wait_for_selector('a[class*="sk-Card_main"]', timeout=20000)
-                    
-                    # Petit sleep pour que le texte des titres finisse de charger
-                    time.sleep(2) 
+                print(f"\n--- 🔎 RECHERCHE : {kw} ---")
+                page.goto(search_url, wait_until="commit")
+                
+                # On attend un peu que le JS s'exécute
+                time.sleep(7)
+                
+                # --- EXTRACTION DU HTML POUR DEBUG ---
+                current_html = page.content()
+                print(f"🤖 [DEBUG] URL actuelle : {page.url}")
+                print(f"🤖 [DEBUG] Titre de la page : {page.title()}")
+                print(f"🤖 [DEBUG] Extrait du code HTML (5000 chars) :\n")
+                print(current_html[:5000]) # On affiche le début du code source
+                print(f"\n--- FIN DE L'EXTRAIT ---")
 
-                    # 3. On récupère les offres
-                    offers = page.locator('a[class*="sk-Card_main"]').all()
-                    print(f"🎯 {len(offers)} offres détectées pour '{kw}'")
-
-                    for offer in offers:
+                # Tentative d'extraction des offres
+                # On cherche les liens d'offres (méthode robuste)
+                offers_links = page.locator('a[href*="/fr/job-offers/"]').all()
+                
+                # Filtrage des liens uniques et longs (les vraies offres)
+                unique_hrefs = set()
+                count_found = 0
+                
+                for link_el in offers_links:
+                    href = link_el.get_attribute('href')
+                    if href and href not in unique_hrefs and len(href) > 35:
+                        unique_hrefs.add(href)
                         try:
-                            # Sélecteur précis basé sur ton HTML
-                            title_el = offer.locator('h3[class*="JobAdCard_title"]')
-                            company_el = offer.locator('[data-testid="jobad-card-company-name"]')
+                            # Tentative de récupération du titre dans le lien ou son parent
+                            title = link_el.inner_text().split('\n')[0].strip()
+                            if not title: continue
                             
-                            title = title_el.inner_text()
-                            company = company_el.inner_text()
-                            link = offer.get_attribute('href')
+                            full_link = f"https://ec-lyon.jobteaser.com{href}" if href.startswith('/') else href
                             
-                            if title and company and link:
-                                full_link = f"https://ec-lyon.jobteaser.com{link}" if link.startswith('/') else link
-                                results.append({
-                                    'title': title.strip(),
-                                    'company': company.strip(),
-                                    'location': 'Exclu JobTeaser (ENISE)',
-                                    'job_url': full_link,
-                                    'site': 'jobteaser'
-                                })
-                        except:
-                            continue
-                            
-                except Exception as e:
-                    print(f"⚠️ Pas d'offres trouvées ou page trop lente pour '{kw}'")
-                    # On continue au mot-clé suivant au lieu de tout couper
-                    continue
-                        
+                            results.append({
+                                'title': title,
+                                'company': "Vérifier HTML debug",
+                                'location': 'Exclu JobTeaser',
+                                'job_url': full_link,
+                                'site': 'jobteaser'
+                            })
+                            count_found += 1
+                        except: continue
+                
+                print(f"🎯 Résultat : {count_found} offres identifiées via les liens.")
+
         except Exception as e:
-            print(f"❌ Erreur durant le scraping : {e}")
+            print(f"❌ Erreur critique : {e}")
         finally:
             browser.close()
             
