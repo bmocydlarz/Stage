@@ -16,56 +16,45 @@ def init_firebase():
 # --- 2. FONCTION SCRAPING JOBTEASER ---
 def scrape_jobteaser(email, password, keywords):
     results = []
-    print(f"🤖 [ROBOT] Démarrage du module JobTeaser...")
+    print(f"🤖 [ROBOT] Connexion directe via le portail école : ec-lyon.jobteaser.com")
     
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
-        # On définit un User-Agent réaliste pour éviter d'être bloqué
-        context = browser.new_context(
-            viewport={'width': 1280, 'height': 800},
-            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
-        )
+        # On garde un User-Agent propre
+        context = browser.new_context(viewport={'width': 1280, 'height': 800})
         page = context.new_page()
         
         try:
-            # 1. Page de Login
-            login_url = "https://connect.jobteaser.com/?client_id=e500827d-07fc-4766-97b4-4f960a2835e7&entity_name=Ecole+Centrale+Lyon&organization_domain=ec-lyon&redirect_uri=https%3A%2F%2Fwww.jobteaser.com%2Fusers%2Fauth%2Fconnect%2Fcallback&response_type=code&ui_locales=fr"
-            print(f"🤖 [ROBOT] Connexion au portail Centrale Lyon...")
-            page.goto(login_url, wait_until="domcontentloaded")
+            # 1. On va sur l'accueil du portail école
+            page.goto("https://ec-lyon.jobteaser.com/", wait_until="domcontentloaded")
             
-            # --- GESTION DES COOKIES ---
+            # Si on n'est pas déjà sur le formulaire, on clique sur "Se connecter" ou on attend le redirect
+            # JobTeaser redirige souvent vers /fr/users/sign_in automatiquement
             time.sleep(2)
-            try:
-                page.click('button:has-text("Accepter"), button:has-text("OK"), [id*="cookie"] button', timeout=5000)
-                print("🤖 [ROBOT] Cookies acceptés.")
-            except: 
-                pass
-
-            # 2. Remplissage
+            
+            # 2. Saisie des identifiants (Playwright attendra que les champs soient visibles)
             page.fill('input[type="email"]', email)
             page.fill('input[type="password"]', password)
-            print(f"🤖 [ROBOT] Identifiants saisis. Envoi du formulaire...")
-            
-            # On utilise "Enter" pour valider plus sûrement qu'un clic sur bouton
+            print(f"🤖 [ROBOT] Saisie des identifiants et validation...")
             page.keyboard.press("Enter")
             
-            # On attend d'être redirigé vers le domaine principal de JobTeaser
-            page.wait_for_url("https://www.jobteaser.com/**", timeout=30000)
-            print(f"🤖 [ROBOT] ✅ Connecté ! URL actuelle : {page.url}")
+            # 3. On attend que la page des offres charge (preuve de connexion réussie)
+            # On vise spécifiquement le domaine ec-lyon
+            page.wait_for_url("https://ec-lyon.jobteaser.com/**", timeout=30000)
+            print(f"🤖 [ROBOT] ✅ Connecté au portail EC-LYON. URL : {page.url}")
 
-            # 4. Boucle de recherche sur le sous-domaine EC-LYON
+            # 4. Boucle de recherche
             for kw in keywords:
                 kw_encoded = kw.replace(' ', '+')
-                # Utilisation du portail spécifique pour voir les offres école
                 search_url = f"https://ec-lyon.jobteaser.com/fr/job-offers?query={kw_encoded}&q={kw_encoded}"
                 
-                print(f"🤖 [ROBOT] Recherche sur le portail école : {kw}")
+                print(f"🤖 [ROBOT] Recherche : {kw}")
                 page.goto(search_url)
                 
-                # Attente que les offres (balises article) soient visibles
                 try:
+                    # On attend que les cartes d'offres apparaissent
                     page.wait_for_selector('article', timeout=15000)
-                    time.sleep(3) # Temps pour le chargement des données JS
+                    time.sleep(3) 
                     
                     offers = page.locator('article').all()
                     count_kw = 0
@@ -76,23 +65,24 @@ def scrape_jobteaser(email, password, keywords):
                             link = offer.locator('a').first.get_attribute('href')
                             
                             if title and company and link:
+                                # On reste sur le domaine école pour le lien final
                                 full_link = f"https://ec-lyon.jobteaser.com{link}" if link.startswith('/') else link
                                 results.append({
                                     'title': title.strip(),
                                     'company': company.strip(),
-                                    'location': 'JobTeaser (Centrale/ENISE)',
+                                    'location': 'Exclu JobTeaser (ENISE/Centrale)',
                                     'job_url': full_link,
                                     'site': 'jobteaser'
                                 })
                                 count_kw += 1
                         except: continue
-                    print(f"🤖 [ROBOT] Found {count_kw} offres pour '{kw}'")
+                    print(f"🤖 [ROBOT] -> {count_kw} offres trouvées pour ce mot-clé.")
                 except:
-                    print(f"🤖 [ROBOT] ⚠️ Aucune offre visible pour '{kw}' sur le portail école.")
+                    print(f"🤖 [ROBOT] ⚠️ Pas d'offres visibles pour '{kw}'.")
 
         except Exception as e:
-            print(f"🤖 [ROBOT] ❌ ERREUR : {e}")
-            print(f"🤖 [ROBOT] Page d'erreur : {page.url}")
+            print(f"🤖 [ROBOT] ❌ Erreur : {e}")
+            print(f"🤖 [ROBOT] Page d'arrêt : {page.url}")
         finally:
             browser.close()
     
