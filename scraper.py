@@ -3,7 +3,7 @@ from jobspy import scrape_jobs
 import firebase_admin
 from firebase_admin import credentials, firestore
 from playwright.sync_api import sync_playwright
-import os, json, time
+import os, json, time, random
 
 # --- 1. INITIALISATION FIREBASE ---
 def init_firebase():
@@ -16,65 +16,76 @@ def init_firebase():
 # --- 2. FONCTION SCRAPING JOBTEASER ---
 def scrape_jobteaser(email, password, keywords):
     results = []
-    print(f"🤖 [ROBOT] Connexion directe via le portail école : ec-lyon.jobteaser.com")
+    print(f"🤖 [ROBOT] Démarrage du module furtif JobTeaser...")
     
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
-        context = browser.new_context(viewport={'width': 1280, 'height': 800})
+        # Lancement avec masquage des flags d'automatisation
+        browser = p.chromium.launch(headless=True, args=[
+            '--disable-blink-features=AutomationControlled',
+            '--no-sandbox'
+        ])
+        
+        context = browser.new_context(
+            viewport={'width': 1920, 'height': 1080},
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+        )
+
+        # Script pour supprimer la trace "webdriver" détectée par Cloudflare
         page = context.new_page()
+        page.add_init_script("delete navigator.__proto__.webdriver")
         
         try:
-            # 1. Accès au portail
-            print(f"🤖 [ROBOT] ÉTAPE 1 : Chargement de https://ec-lyon.jobteaser.com/ ...")
-            page.goto("https://ec-lyon.jobteaser.com/", wait_until="domcontentloaded")
-            time.sleep(2)
-            print(f"🤖 [ROBOT] URL actuelle après chargement : {page.url}")
-            print(f"🤖 [ROBOT] Titre de la page : '{page.title()}'")
-            
-            # 2. Saisie des identifiants
-            print(f"🤖 [ROBOT] ÉTAPE 2 : Saisie des identifiants pour {email}...")
+            # 1. Connexion via le portail école
+            print(f"🤖 [ROBOT] Accès à ec-lyon.jobteaser.com...")
+            page.goto("https://ec-lyon.jobteaser.com/", wait_until="networkidle")
+            time.sleep(random.uniform(2, 4))
+
+            # Gestion des cookies pour débloquer le formulaire
+            try:
+                page.click('button:has-text("Accepter"), button:has-text("Tout accepter")', timeout=5000)
+                print("🤖 [ROBOT] Cookies acceptés.")
+            except: pass
+
+            # 2. Saisie humaine
+            print(f"🤖 [ROBOT] Saisie des identifiants...")
             page.fill('input[type="email"]', email)
+            time.sleep(random.uniform(0.5, 1.5))
             page.fill('input[type="password"]', password)
+            time.sleep(random.uniform(0.5, 1.0))
             page.keyboard.press("Enter")
             
-            # 3. Attente de la connexion
-            print(f"🤖 [ROBOT] ÉTAPE 3 : Attente de la redirection post-connexion...")
-            page.wait_for_url("https://ec-lyon.jobteaser.com/**", timeout=30000)
-            print(f"🤖 [ROBOT] ✅ CONNECTÉ ! URL de destination : {page.url}")
+            # Attente de la redirection (Dashboard)
+            page.wait_for_url("**/dashboard**", timeout=45000)
+            print(f"🤖 [ROBOT] ✅ Connexion réussie ! (URL: {page.url})")
+            time.sleep(3)
 
-            # 4. Boucle de recherche
-            # 4. Boucle de recherche FURTIVE
+            # 3. Boucle de recherche
             for kw in keywords:
                 print(f"---")
-                print(f"🤖 [ROBOT] Recherche furtive pour : '{kw}'")
+                print(f"🤖 [ROBOT] Recherche de : '{kw}'")
                 
-                # Au lieu de charger une URL, on utilise la barre de recherche déjà présente
-                # Si on est perdu, on revient au dashboard école
-                if "job-offers" not in page.url:
-                    page.goto("https://ec-lyon.jobteaser.com/fr/job-offers")
-                    time.sleep(3)
+                # Navigation vers la page d'offres
+                page.goto("https://ec-lyon.jobteaser.com/fr/job-offers", wait_until="domcontentloaded")
+                time.sleep(random.uniform(4, 6)) # Pause pour laisser Cloudflare tranquille
+
+                # Vérification anti-blocage
+                if "Just a moment" in page.title():
+                    print("🤖 [ROBOT] 🛡️ Cloudflare détecté. Tentative de passage en force...")
+                    time.sleep(10)
 
                 try:
-                    # 1. On trouve la barre de recherche
-                    search_input = page.locator('input[type="search"], #query, .jt-search-input').first
+                    # On tape le mot-clé dans la barre de recherche
+                    search_input = page.locator('input[type="search"], #query').first
                     search_input.click()
-                    # On efface l'ancien texte
-                    page.keyboard.press("Control+A")
-                    page.keyboard.press("Backspace")
-                    # On tape lentement (simulateur d'humain)
-                    search_input.type(kw, delay=100)
+                    page.keyboard.type(kw, delay=random.randint(100, 200)) # Tape comme un humain
                     page.keyboard.press("Enter")
                     
-                    print(f"🤖 [ROBOT] Mot-clé tapé. J'attends que Cloudflare me laisse passer...")
-                    
-                    # 2. On attend que le titre de la page change (pour quitter le 'Just a moment')
-                    # On attend que le mot "Offres" ou "Stage" apparaisse dans le titre ou le body
+                    # Attente des résultats
                     page.wait_for_selector('article', timeout=20000)
-                    
-                    time.sleep(4) # Temps de chargement des résultats
+                    time.sleep(3)
                     
                     offers = page.locator('article').all()
-                    print(f"🤖 [ROBOT] ✨ Succès ! {len(offers)} offres détectées.")
+                    print(f"🤖 [ROBOT] ✨ Succès : {len(offers)} offres trouvées.")
                     
                     for offer in offers:
                         try:
@@ -87,18 +98,17 @@ def scrape_jobteaser(email, password, keywords):
                                 results.append({
                                     'title': title.strip(),
                                     'company': company.strip(),
-                                    'location': 'JobTeaser (ENISE)',
+                                    'location': 'Exclu JobTeaser (ENISE)',
                                     'job_url': full_link,
                                     'site': 'jobteaser'
                                 })
                         except: continue
                 except Exception as e:
-                    print(f"🤖 [ROBOT] ❌ ÉCHEC : Aucune offre trouvée ou timeout sur cette page.")
-                    print(f"🤖 [ROBOT] Diagnostic : Je suis sur '{page.url}' et le titre est '{page.title()}'")
+                    print(f"🤖 [ROBOT] ❌ Échec sur '{kw}' (Titre: {page.title()})")
+                    continue
 
         except Exception as e:
-            print(f"🤖 [ROBOT] ❌ ERREUR FATALE : {e}")
-            print(f"🤖 [ROBOT] Position finale du robot : {page.url}")
+            print(f"🤖 [ROBOT] ❌ ERREUR : {e}")
         finally:
             browser.close()
     
@@ -118,7 +128,7 @@ if __name__ == "__main__":
     for email, prefs in USERS.items():
         all_results = []
 
-        # A. Scraping Public (LinkedIn/Indeed)
+        # A. JobSpy (LinkedIn/Indeed)
         print(f"🔎 Scraping Public pour {email}...")
         for loc in prefs["villes"]:
             for kw in MOTS_CLES:
@@ -132,24 +142,20 @@ if __name__ == "__main__":
                         hours_old=336,
                         country_indeed='france'
                     )
-                    if not jobs.empty:
-                        all_results.append(jobs)
+                    if not jobs.empty: all_results.append(jobs)
                 except: continue
 
-        # B. Scraping JobTeaser (Portail École)
+        # B. JobTeaser (Furtif)
         if JT_PASS:
-            jt_jobs = scrape_jobteaser(email, JT_PASS, MOTS_CLES)
-            if jt_jobs:
-                all_results.append(pd.DataFrame(jt_jobs))
+            jt_data = scrape_jobteaser(email, JT_PASS, MOTS_CLES)
+            if jt_data: all_results.append(pd.DataFrame(jt_data))
 
-        # C. Fusion et Envoi vers Firebase
+        # C. Firebase
         if all_results:
-            # Fusion de tous les DataFrames (Public + JobTeaser)
             final_df = pd.concat(all_results).drop_duplicates(subset=['job_url'])
             final_df = final_df.astype(str)
-            
             db.collection('jobs').document(email.lower()).set({
                 'offers': final_df.to_dict(orient='records'),
                 'updated_at': firestore.SERVER_TIMESTAMP
             })
-            print(f"✨ Terminé ! {len(final_df)} offres au total stockées pour {email}")
+            print(f"✨ Terminé ! {len(final_df)} offres stockées.")
