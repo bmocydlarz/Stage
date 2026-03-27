@@ -2,20 +2,20 @@ name: Robot ENISE STAGES
 
 on:
   schedule:
-    - cron: '0 3 * * *' # Tous les jours à 3h
-  workflow_dispatch: # Bouton manuel
+    - cron: '0 3 * * *'
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: 1. Recuperation du code
-        [span_2](start_span)uses: actions/checkout@v4 # Version actuelle stable[span_2](end_span)
+        uses: actions/checkout@v4
 
       - name: 2. Installation de Python
-        [span_3](start_span)uses: actions/setup-python@v5 # Passage en v5 pour éviter l'alerte Node.js 20[span_3](end_span)
+        uses: actions/setup-python@v5
         with:
-          [span_4](start_span)python-version: '3.11' # Utilisation de 3.11 pour éviter l'alerte d'obsolescence de 3.10[span_4](end_span)
+          python-version: '3.11'
 
       - name: 3. Installation des outils
         run: |
