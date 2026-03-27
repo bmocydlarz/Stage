@@ -1,525 +1,89 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ENISE STAGES</title>
+    <link rel="stylesheet" href="style.css"> <style>
+        :root { --enise-red: #e2001a; --bg-gray: #f4f4f4; }
+        body { font-family: sans-serif; background: var(--bg-gray); margin: 0; padding-bottom: 80px; }
+        header { background: white; padding: 15px; text-align: center; border-bottom: 2px solid var(--enise-red); }
+        h1 { color: var(--enise-red); margin: 0; font-size: 1.5rem; }
+        .stage-card { background: white; margin: 15px; padding: 15px; border-radius: 12px; border-left: 5px solid var(--enise-red); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .company { color: #555; font-weight: bold; margin: 5px 0; }
+        .location { font-size: 0.85rem; color: #888; }
+        .btn-apply { display: block; background: var(--enise-red); color: white; text-align: center; padding: 10px; border-radius: 8px; text-decoration: none; margin-top: 10px; font-weight: bold; }
+        #login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
+    </style>
+</head>
+<body>
 
-    <!DOCTYPE html>
-    <html lang="fr">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Ma Veille Stages Méca 🛠️</title>
-        <script src="https://cdn.tailwindcss.com"></script>
-    </head>
-    <body class="bg-gray-100 p-4">
-        <div class="max-w-3xl mx-auto">
-            <header class="mb-8">
-                <h1 class="text-3xl font-bold text-blue-900">🎯 Mes Offres de Stage</h1>
-                <p class="text-gray-600">Dernière mise à jour : 27/03/2026 à 08:50</p>
-                <div class="flex gap-2 mt-2">
-                    <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded">Saint-Étienne (25km)</span>
-                    <span class="bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded">Quesnoy-sur-Deûle (25km)</span>
-                </div>
-            </header>
-            <div class="space-y-4">
-    
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition">
-                <div class="flex justify-between items-start">
-                    <h2 class="text-xl font-bold text-gray-800 leading-tight">Alternance Ingénieur en conception mécanique Alternance H/F</h2>
-                    <span class="text-xs font-medium text-gray-400">2026-09-07</span>
-                </div>
-                <p class="text-blue-700 font-semibold mt-1 text-lg">Velec Group</p>
-                <p class="text-gray-600 flex items-center mt-1 italic">
-                    📍 Wattrelos, HDF, FR
-                </p>
-                <div class="mt-4 flex items-center justify-between">
-                    <span class="text-sm font-medium px-2 py-1 bg-gray-100 rounded text-gray-600">Source : indeed</span>
-                    <a href="https://fr.indeed.com/viewjob?jk=a504a368da8613ab" target="_blank" 
-                       class="bg-blue-600 text-white px-5 py-2 rounded-lg font-bold hover:bg-blue-800 transition">
-                       Postuler
-                    </a>
-                </div>
-            </div>
-            
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition">
-                <div class="flex justify-between items-start">
-                    <h2 class="text-xl font-bold text-gray-800 leading-tight">Stagiaire styliste/modéliste</h2>
-                    <span class="text-xs font-medium text-gray-400">2026-03-26</span>
-                </div>
-                <p class="text-blue-700 font-semibold mt-1 text-lg">CROCI CANIFRANCE</p>
-                <p class="text-gray-600 flex items-center mt-1 italic">
-                    📍 Marcq-en-Barœul, HDF, FR
-                </p>
-                <div class="mt-4 flex items-center justify-between">
-                    <span class="text-sm font-medium px-2 py-1 bg-gray-100 rounded text-gray-600">Source : indeed</span>
-                    <a href="https://fr.indeed.com/viewjob?jk=f7a83877ac92358f" target="_blank" 
-                       class="bg-blue-600 text-white px-5 py-2 rounded-lg font-bold hover:bg-blue-800 transition">
-                       Postuler
-                    </a>
-                </div>
-            </div>
-            
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition">
-                <div class="flex justify-between items-start">
-                    <h2 class="text-xl font-bold text-gray-800 leading-tight">Stagiaire Marketing et Communication (non rémunéré)</h2>
-                    <span class="text-xs font-medium text-gray-400">2026-03-26</span>
-                </div>
-                <p class="text-blue-700 font-semibold mt-1 text-lg">INS-IT</p>
-                <p class="text-gray-600 flex items-center mt-1 italic">
-                    📍 Lille, HDF, FR
-                </p>
-                <div class="mt-4 flex items-center justify-between">
-                    <span class="text-sm font-medium px-2 py-1 bg-gray-100 rounded text-gray-600">Source : indeed</span>
-                    <a href="https://fr.indeed.com/viewjob?jk=0d80bcf5ba9b821b" target="_blank" 
-                       class="bg-blue-600 text-white px-5 py-2 rounded-lg font-bold hover:bg-blue-800 transition">
-                       Postuler
-                    </a>
-                </div>
-            </div>
-            
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition">
-                <div class="flex justify-between items-start">
-                    <h2 class="text-xl font-bold text-gray-800 leading-tight">Stage Ingénieur Production H/F</h2>
-                    <span class="text-xs font-medium text-gray-400">2026-03-26</span>
-                </div>
-                <p class="text-blue-700 font-semibold mt-1 text-lg">Delacre Industries SAS</p>
-                <p class="text-gray-600 flex items-center mt-1 italic">
-                    📍 Nieppe, HDF, FR
-                </p>
-                <div class="mt-4 flex items-center justify-between">
-                    <span class="text-sm font-medium px-2 py-1 bg-gray-100 rounded text-gray-600">Source : indeed</span>
-                    <a href="https://fr.indeed.com/viewjob?jk=8fd3a73b23c681be" target="_blank" 
-                       class="bg-blue-600 text-white px-5 py-2 rounded-lg font-bold hover:bg-blue-800 transition">
-                       Postuler
-                    </a>
-                </div>
-            </div>
-            
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition">
-                <div class="flex justify-between items-start">
-                    <h2 class="text-xl font-bold text-gray-800 leading-tight">Stagiaire Data Analyst HF</h2>
-                    <span class="text-xs font-medium text-gray-400">2026-03-25</span>
-                </div>
-                <p class="text-blue-700 font-semibold mt-1 text-lg">Kingfisher</p>
-                <p class="text-gray-600 flex items-center mt-1 italic">
-                    📍 Templemars, HDF, FR
-                </p>
-                <div class="mt-4 flex items-center justify-between">
-                    <span class="text-sm font-medium px-2 py-1 bg-gray-100 rounded text-gray-600">Source : indeed</span>
-                    <a href="https://fr.indeed.com/viewjob?jk=5faaa4aa5432a82d" target="_blank" 
-                       class="bg-blue-600 text-white px-5 py-2 rounded-lg font-bold hover:bg-blue-800 transition">
-                       Postuler
-                    </a>
-                </div>
-            </div>
-            
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition">
-                <div class="flex justify-between items-start">
-                    <h2 class="text-xl font-bold text-gray-800 leading-tight">Ingénieur Projet Travaux Neufs - Lille (H/F)</h2>
-                    <span class="text-xs font-medium text-gray-400">2026-03-25</span>
-                </div>
-                <p class="text-blue-700 font-semibold mt-1 text-lg">MCA</p>
-                <p class="text-gray-600 flex items-center mt-1 italic">
-                    📍 Lille, Hauts-de-France, France
-                </p>
-                <div class="mt-4 flex items-center justify-between">
-                    <span class="text-sm font-medium px-2 py-1 bg-gray-100 rounded text-gray-600">Source : linkedin</span>
-                    <a href="https://www.linkedin.com/jobs/view/4139295135" target="_blank" 
-                       class="bg-blue-600 text-white px-5 py-2 rounded-lg font-bold hover:bg-blue-800 transition">
-                       Postuler
-                    </a>
-                </div>
-            </div>
-            
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition">
-                <div class="flex justify-between items-start">
-                    <h2 class="text-xl font-bold text-gray-800 leading-tight">Stagiaire Supply Chain / Approvisionnements</h2>
-                    <span class="text-xs font-medium text-gray-400">2026-03-25</span>
-                </div>
-                <p class="text-blue-700 font-semibold mt-1 text-lg">Wabtec</p>
-                <p class="text-gray-600 flex items-center mt-1 italic">
-                    📍 Lille, HDF, FR
-                </p>
-                <div class="mt-4 flex items-center justify-between">
-                    <span class="text-sm font-medium px-2 py-1 bg-gray-100 rounded text-gray-600">Source : indeed</span>
-                    <a href="https://fr.indeed.com/viewjob?jk=0d66b17336648dba" target="_blank" 
-                       class="bg-blue-600 text-white px-5 py-2 rounded-lg font-bold hover:bg-blue-800 transition">
-                       Postuler
-                    </a>
-                </div>
-            </div>
-            
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition">
-                <div class="flex justify-between items-start">
-                    <h2 class="text-xl font-bold text-gray-800 leading-tight">Stagiaire assistant commercial H/F</h2>
-                    <span class="text-xs font-medium text-gray-400">2026-03-25</span>
-                </div>
-                <p class="text-blue-700 font-semibold mt-1 text-lg">Batisec</p>
-                <p class="text-gray-600 flex items-center mt-1 italic">
-                    📍 Roncq, HDF, FR
-                </p>
-                <div class="mt-4 flex items-center justify-between">
-                    <span class="text-sm font-medium px-2 py-1 bg-gray-100 rounded text-gray-600">Source : indeed</span>
-                    <a href="https://fr.indeed.com/viewjob?jk=882003795570eb4c" target="_blank" 
-                       class="bg-blue-600 text-white px-5 py-2 rounded-lg font-bold hover:bg-blue-800 transition">
-                       Postuler
-                    </a>
-                </div>
-            </div>
-            
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition">
-                <div class="flex justify-between items-start">
-                    <h2 class="text-xl font-bold text-gray-800 leading-tight">Stagiaire Data Analyst HF</h2>
-                    <span class="text-xs font-medium text-gray-400">2026-03-25</span>
-                </div>
-                <p class="text-blue-700 font-semibold mt-1 text-lg">Kingfisher</p>
-                <p class="text-gray-600 flex items-center mt-1 italic">
-                    📍 Templemars, HDF, FR
-                </p>
-                <div class="mt-4 flex items-center justify-between">
-                    <span class="text-sm font-medium px-2 py-1 bg-gray-100 rounded text-gray-600">Source : indeed</span>
-                    <a href="https://fr.indeed.com/viewjob?jk=d1fc061a97b7895b" target="_blank" 
-                       class="bg-blue-600 text-white px-5 py-2 rounded-lg font-bold hover:bg-blue-800 transition">
-                       Postuler
-                    </a>
-                </div>
-            </div>
-            
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition">
-                <div class="flex justify-between items-start">
-                    <h2 class="text-xl font-bold text-gray-800 leading-tight">Stagiaire en gestion digitale et relation client</h2>
-                    <span class="text-xs font-medium text-gray-400">2026-03-24</span>
-                </div>
-                <p class="text-blue-700 font-semibold mt-1 text-lg">Kalimat Global</p>
-                <p class="text-gray-600 flex items-center mt-1 italic">
-                    📍 Villeneuve-d'Ascq, HDF, FR
-                </p>
-                <div class="mt-4 flex items-center justify-between">
-                    <span class="text-sm font-medium px-2 py-1 bg-gray-100 rounded text-gray-600">Source : indeed</span>
-                    <a href="https://fr.indeed.com/viewjob?jk=a3b241b5bef09ec4" target="_blank" 
-                       class="bg-blue-600 text-white px-5 py-2 rounded-lg font-bold hover:bg-blue-800 transition">
-                       Postuler
-                    </a>
-                </div>
-            </div>
-            
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition">
-                <div class="flex justify-between items-start">
-                    <h2 class="text-xl font-bold text-gray-800 leading-tight">Stagiaire en immobilier H/F</h2>
-                    <span class="text-xs font-medium text-gray-400">2026-03-24</span>
-                </div>
-                <p class="text-blue-700 font-semibold mt-1 text-lg">Art Campus</p>
-                <p class="text-gray-600 flex items-center mt-1 italic">
-                    📍 Roubaix, HDF, FR
-                </p>
-                <div class="mt-4 flex items-center justify-between">
-                    <span class="text-sm font-medium px-2 py-1 bg-gray-100 rounded text-gray-600">Source : indeed</span>
-                    <a href="https://fr.indeed.com/viewjob?jk=a0d037043ab95d52" target="_blank" 
-                       class="bg-blue-600 text-white px-5 py-2 rounded-lg font-bold hover:bg-blue-800 transition">
-                       Postuler
-                    </a>
-                </div>
-            </div>
-            
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition">
-                <div class="flex justify-between items-start">
-                    <h2 class="text-xl font-bold text-gray-800 leading-tight">Alternant(e) Commercial Spécialiste Industrie Automation - Lille - F/H</h2>
-                    <span class="text-xs font-medium text-gray-400">2026-03-24</span>
-                </div>
-                <p class="text-blue-700 font-semibold mt-1 text-lg">Schneider Electric</p>
-                <p class="text-gray-600 flex items-center mt-1 italic">
-                    📍 Lesquin, HDF, FR
-                </p>
-                <div class="mt-4 flex items-center justify-between">
-                    <span class="text-sm font-medium px-2 py-1 bg-gray-100 rounded text-gray-600">Source : indeed</span>
-                    <a href="https://fr.indeed.com/viewjob?jk=61aaefad1d36baa1" target="_blank" 
-                       class="bg-blue-600 text-white px-5 py-2 rounded-lg font-bold hover:bg-blue-800 transition">
-                       Postuler
-                    </a>
-                </div>
-            </div>
-            
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition">
-                <div class="flex justify-between items-start">
-                    <h2 class="text-xl font-bold text-gray-800 leading-tight">Ingénieur Chef de Projet Sites et Sols Pollués H/F</h2>
-                    <span class="text-xs font-medium text-gray-400">2026-03-24</span>
-                </div>
-                <p class="text-blue-700 font-semibold mt-1 text-lg">SOCOTEC</p>
-                <p class="text-gray-600 flex items-center mt-1 italic">
-                    📍 Lesquin, Hauts-de-France, France
-                </p>
-                <div class="mt-4 flex items-center justify-between">
-                    <span class="text-sm font-medium px-2 py-1 bg-gray-100 rounded text-gray-600">Source : linkedin</span>
-                    <a href="https://www.linkedin.com/jobs/view/4378892051" target="_blank" 
-                       class="bg-blue-600 text-white px-5 py-2 rounded-lg font-bold hover:bg-blue-800 transition">
-                       Postuler
-                    </a>
-                </div>
-            </div>
-            
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition">
-                <div class="flex justify-between items-start">
-                    <h2 class="text-xl font-bold text-gray-800 leading-tight">Ingénieur génie civil (H/F)</h2>
-                    <span class="text-xs font-medium text-gray-400">2026-03-23</span>
-                </div>
-                <p class="text-blue-700 font-semibold mt-1 text-lg">Davidson consulting</p>
-                <p class="text-gray-600 flex items-center mt-1 italic">
-                    📍 Lille, Hauts-de-France, France
-                </p>
-                <div class="mt-4 flex items-center justify-between">
-                    <span class="text-sm font-medium px-2 py-1 bg-gray-100 rounded text-gray-600">Source : linkedin</span>
-                    <a href="https://www.linkedin.com/jobs/view/3959022847" target="_blank" 
-                       class="bg-blue-600 text-white px-5 py-2 rounded-lg font-bold hover:bg-blue-800 transition">
-                       Postuler
-                    </a>
-                </div>
-            </div>
-            
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition">
-                <div class="flex justify-between items-start">
-                    <h2 class="text-xl font-bold text-gray-800 leading-tight">Ingénieur projet travaux neufs - Lille, France  (H/F)</h2>
-                    <span class="text-xs font-medium text-gray-400">2026-03-23</span>
-                </div>
-                <p class="text-blue-700 font-semibold mt-1 text-lg">Astek</p>
-                <p class="text-gray-600 flex items-center mt-1 italic">
-                    📍 Lille, Hauts-de-France, France
-                </p>
-                <div class="mt-4 flex items-center justify-between">
-                    <span class="text-sm font-medium px-2 py-1 bg-gray-100 rounded text-gray-600">Source : linkedin</span>
-                    <a href="https://www.linkedin.com/jobs/view/4387086945" target="_blank" 
-                       class="bg-blue-600 text-white px-5 py-2 rounded-lg font-bold hover:bg-blue-800 transition">
-                       Postuler
-                    </a>
-                </div>
-            </div>
-            
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition">
-                <div class="flex justify-between items-start">
-                    <h2 class="text-xl font-bold text-gray-800 leading-tight">Assistant Ingénieur d'Affaires H.F en alternance</h2>
-                    <span class="text-xs font-medium text-gray-400">2026-03-23</span>
-                </div>
-                <p class="text-blue-700 font-semibold mt-1 text-lg">Equans France</p>
-                <p class="text-gray-600 flex items-center mt-1 italic">
-                    📍 Marcq-en-Barœul, Hauts-de-France, France
-                </p>
-                <div class="mt-4 flex items-center justify-between">
-                    <span class="text-sm font-medium px-2 py-1 bg-gray-100 rounded text-gray-600">Source : linkedin</span>
-                    <a href="https://www.linkedin.com/jobs/view/4388698169" target="_blank" 
-                       class="bg-blue-600 text-white px-5 py-2 rounded-lg font-bold hover:bg-blue-800 transition">
-                       Postuler
-                    </a>
-                </div>
-            </div>
-            
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition">
-                <div class="flex justify-between items-start">
-                    <h2 class="text-xl font-bold text-gray-800 leading-tight">Stage Ingénieur(e) R&D Mécanique</h2>
-                    <span class="text-xs font-medium text-gray-400">2026-03-23</span>
-                </div>
-                <p class="text-blue-700 font-semibold mt-1 text-lg">Exotec</p>
-                <p class="text-gray-600 flex items-center mt-1 italic">
-                    📍 Lille, Hauts-de-France, France
-                </p>
-                <div class="mt-4 flex items-center justify-between">
-                    <span class="text-sm font-medium px-2 py-1 bg-gray-100 rounded text-gray-600">Source : linkedin</span>
-                    <a href="https://www.linkedin.com/jobs/view/4388972215" target="_blank" 
-                       class="bg-blue-600 text-white px-5 py-2 rounded-lg font-bold hover:bg-blue-800 transition">
-                       Postuler
-                    </a>
-                </div>
-            </div>
-            
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition">
-                <div class="flex justify-between items-start">
-                    <h2 class="text-xl font-bold text-gray-800 leading-tight">Stage Ingénieur(e) R&D Mécanique</h2>
-                    <span class="text-xs font-medium text-gray-400">2026-03-23</span>
-                </div>
-                <p class="text-blue-700 font-semibold mt-1 text-lg">EXOTEC</p>
-                <p class="text-gray-600 flex items-center mt-1 italic">
-                    📍 Lille, HDF, FR
-                </p>
-                <div class="mt-4 flex items-center justify-between">
-                    <span class="text-sm font-medium px-2 py-1 bg-gray-100 rounded text-gray-600">Source : indeed</span>
-                    <a href="https://fr.indeed.com/viewjob?jk=c91926ef25b8cabe" target="_blank" 
-                       class="bg-blue-600 text-white px-5 py-2 rounded-lg font-bold hover:bg-blue-800 transition">
-                       Postuler
-                    </a>
-                </div>
-            </div>
-            
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition">
-                <div class="flex justify-between items-start">
-                    <h2 class="text-xl font-bold text-gray-800 leading-tight">Engineer Optics</h2>
-                    <span class="text-xs font-medium text-gray-400">2026-03-22</span>
-                </div>
-                <p class="text-blue-700 font-semibold mt-1 text-lg">Barco</p>
-                <p class="text-gray-600 flex items-center mt-1 italic">
-                    📍 Kortrijk, Flemish Region, Belgium
-                </p>
-                <div class="mt-4 flex items-center justify-between">
-                    <span class="text-sm font-medium px-2 py-1 bg-gray-100 rounded text-gray-600">Source : linkedin</span>
-                    <a href="https://www.linkedin.com/jobs/view/4360092994" target="_blank" 
-                       class="bg-blue-600 text-white px-5 py-2 rounded-lg font-bold hover:bg-blue-800 transition">
-                       Postuler
-                    </a>
-                </div>
-            </div>
-            
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition">
-                <div class="flex justify-between items-start">
-                    <h2 class="text-xl font-bold text-gray-800 leading-tight">STAGE - INGENIEUR(E) COMPOSANT ET TECHNOLOGIQUE (H/F)</h2>
-                    <span class="text-xs font-medium text-gray-400">2026-03-21</span>
-                </div>
-                <p class="text-blue-700 font-semibold mt-1 text-lg">DECATHLON FITNESS LAB</p>
-                <p class="text-gray-600 flex items-center mt-1 italic">
-                    📍 Marcq-en-Barœul, Hauts-de-France, France
-                </p>
-                <div class="mt-4 flex items-center justify-between">
-                    <span class="text-sm font-medium px-2 py-1 bg-gray-100 rounded text-gray-600">Source : linkedin</span>
-                    <a href="https://www.linkedin.com/jobs/view/4388733476" target="_blank" 
-                       class="bg-blue-600 text-white px-5 py-2 rounded-lg font-bold hover:bg-blue-800 transition">
-                       Postuler
-                    </a>
-                </div>
-            </div>
-            
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition">
-                <div class="flex justify-between items-start">
-                    <h2 class="text-xl font-bold text-gray-800 leading-tight">Ingénieur Pilote Géométrie (H/F)</h2>
-                    <span class="text-xs font-medium text-gray-400">2026-03-20</span>
-                </div>
-                <p class="text-blue-700 font-semibold mt-1 text-lg">ALTEN</p>
-                <p class="text-gray-600 flex items-center mt-1 italic">
-                    📍 Villeneuve-d’Ascq, Hauts-de-France, France
-                </p>
-                <div class="mt-4 flex items-center justify-between">
-                    <span class="text-sm font-medium px-2 py-1 bg-gray-100 rounded text-gray-600">Source : linkedin</span>
-                    <a href="https://www.linkedin.com/jobs/view/4387944850" target="_blank" 
-                       class="bg-blue-600 text-white px-5 py-2 rounded-lg font-bold hover:bg-blue-800 transition">
-                       Postuler
-                    </a>
-                </div>
-            </div>
-            
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition">
-                <div class="flex justify-between items-start">
-                    <h2 class="text-xl font-bold text-gray-800 leading-tight">Ingénieur conception électronique CDI H/F</h2>
-                    <span class="text-xs font-medium text-gray-400">2026-03-20</span>
-                </div>
-                <p class="text-blue-700 font-semibold mt-1 text-lg">Centum T&S</p>
-                <p class="text-gray-600 flex items-center mt-1 italic">
-                    📍 Saint-Étienne, ARA, FR
-                </p>
-                <div class="mt-4 flex items-center justify-between">
-                    <span class="text-sm font-medium px-2 py-1 bg-gray-100 rounded text-gray-600">Source : indeed</span>
-                    <a href="https://fr.indeed.com/viewjob?jk=2700e272e54001aa" target="_blank" 
-                       class="bg-blue-600 text-white px-5 py-2 rounded-lg font-bold hover:bg-blue-800 transition">
-                       Postuler
-                    </a>
-                </div>
-            </div>
-            
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition">
-                <div class="flex justify-between items-start">
-                    <h2 class="text-xl font-bold text-gray-800 leading-tight">Offre de Stage - Ingénieur(e) Environnement : gestion des ICPE et Sites Pollués (H/F)</h2>
-                    <span class="text-xs font-medium text-gray-400">2026-03-20</span>
-                </div>
-                <p class="text-blue-700 font-semibold mt-1 text-lg">DREAL Auvergne-Rhône-Alpes</p>
-                <p class="text-gray-600 flex items-center mt-1 italic">
-                    📍 Saint-Étienne, ARA, FR
-                </p>
-                <div class="mt-4 flex items-center justify-between">
-                    <span class="text-sm font-medium px-2 py-1 bg-gray-100 rounded text-gray-600">Source : indeed</span>
-                    <a href="https://fr.indeed.com/viewjob?jk=d7f5df775e89a638" target="_blank" 
-                       class="bg-blue-600 text-white px-5 py-2 rounded-lg font-bold hover:bg-blue-800 transition">
-                       Postuler
-                    </a>
-                </div>
-            </div>
-            
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition">
-                <div class="flex justify-between items-start">
-                    <h2 class="text-xl font-bold text-gray-800 leading-tight">Stagiaire Ingénieur production H/F</h2>
-                    <span class="text-xs font-medium text-gray-400">2026-03-20</span>
-                </div>
-                <p class="text-blue-700 font-semibold mt-1 text-lg">Natra</p>
-                <p class="text-gray-600 flex items-center mt-1 italic">
-                    📍 Saint-Étienne, ARA, FR
-                </p>
-                <div class="mt-4 flex items-center justify-between">
-                    <span class="text-sm font-medium px-2 py-1 bg-gray-100 rounded text-gray-600">Source : indeed</span>
-                    <a href="https://fr.indeed.com/viewjob?jk=472c44f0301898f0" target="_blank" 
-                       class="bg-blue-600 text-white px-5 py-2 rounded-lg font-bold hover:bg-blue-800 transition">
-                       Postuler
-                    </a>
-                </div>
-            </div>
-            
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition">
-                <div class="flex justify-between items-start">
-                    <h2 class="text-xl font-bold text-gray-800 leading-tight">Stagiaire Comptabilité – Trésorerie (F/H)</h2>
-                    <span class="text-xs font-medium text-gray-400">2026-03-20</span>
-                </div>
-                <p class="text-blue-700 font-semibold mt-1 text-lg">HAULOTTE</p>
-                <p class="text-gray-600 flex items-center mt-1 italic">
-                    📍 Lorette, ARA, FR
-                </p>
-                <div class="mt-4 flex items-center justify-between">
-                    <span class="text-sm font-medium px-2 py-1 bg-gray-100 rounded text-gray-600">Source : indeed</span>
-                    <a href="https://fr.indeed.com/viewjob?jk=eba2ec3d2b6a1c99" target="_blank" 
-                       class="bg-blue-600 text-white px-5 py-2 rounded-lg font-bold hover:bg-blue-800 transition">
-                       Postuler
-                    </a>
-                </div>
-            </div>
-            
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition">
-                <div class="flex justify-between items-start">
-                    <h2 class="text-xl font-bold text-gray-800 leading-tight">Ingénieur projet R&D vasculaire</h2>
-                    <span class="text-xs font-medium text-gray-400">2026-03-20</span>
-                </div>
-                <p class="text-blue-700 font-semibold mt-1 text-lg">Enovis</p>
-                <p class="text-gray-600 flex items-center mt-1 italic">
-                    📍 Mouguerre, Nouvelle-Aquitaine, France
-                </p>
-                <div class="mt-4 flex items-center justify-between">
-                    <span class="text-sm font-medium px-2 py-1 bg-gray-100 rounded text-gray-600">Source : linkedin</span>
-                    <a href="https://www.linkedin.com/jobs/view/4362322932" target="_blank" 
-                       class="bg-blue-600 text-white px-5 py-2 rounded-lg font-bold hover:bg-blue-800 transition">
-                       Postuler
-                    </a>
-                </div>
-            </div>
-            
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition">
-                <div class="flex justify-between items-start">
-                    <h2 class="text-xl font-bold text-gray-800 leading-tight">Ingénieur Travaux Neufs H/F</h2>
-                    <span class="text-xs font-medium text-gray-400">Récent</span>
-                </div>
-                <p class="text-blue-700 font-semibold mt-1 text-lg">fortil</p>
-                <p class="text-gray-600 flex items-center mt-1 italic">
-                    📍 Villeneuve-d’Ascq, Hauts-de-France, France
-                </p>
-                <div class="mt-4 flex items-center justify-between">
-                    <span class="text-sm font-medium px-2 py-1 bg-gray-100 rounded text-gray-600">Source : linkedin</span>
-                    <a href="https://www.linkedin.com/jobs/view/4390464956" target="_blank" 
-                       class="bg-blue-600 text-white px-5 py-2 rounded-lg font-bold hover:bg-blue-800 transition">
-                       Postuler
-                    </a>
-                </div>
-            </div>
-            
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition">
-                <div class="flex justify-between items-start">
-                    <h2 class="text-xl font-bold text-gray-800 leading-tight">Ingénieur Études de Prix - Génie Civil H/F</h2>
-                    <span class="text-xs font-medium text-gray-400">Récent</span>
-                </div>
-                <p class="text-blue-700 font-semibold mt-1 text-lg">TSO Rail Limited</p>
-                <p class="text-gray-600 flex items-center mt-1 italic">
-                    📍 
-                </p>
-                <div class="mt-4 flex items-center justify-between">
-                    <span class="text-sm font-medium px-2 py-1 bg-gray-100 rounded text-gray-600">Source : linkedin</span>
-                    <a href="https://www.linkedin.com/jobs/view/4391925606" target="_blank" 
-                       class="bg-blue-600 text-white px-5 py-2 rounded-lg font-bold hover:bg-blue-800 transition">
-                       Postuler
-                    </a>
-                </div>
-            </div>
-            </div><footer class='mt-10 text-center text-gray-400 text-sm'>Fin de la liste</footer></div></body></html>
+    <div id="login-screen">
+        <h2 style="color:var(--enise-red)">ENISE<span>STAGES</span></h2>
+        <p>Connecte-toi avec ton mail ENISE</p>
+        <input type="email" id="email" placeholder="prenom.nom@enise.fr" style="padding:10px; margin:5px; width:80%">
+        <input type="password" id="pass" placeholder="Mot de passe" style="padding:10px; margin:5px; width:80%">
+        <button id="btn-login" style="background:var(--enise-red); color:white; border:none; padding:12px 30px; border-radius:5px; margin-top:10px">Se connecter</button>
+    </div>
+
+    <div id="app" style="display:none;">
+        <header><h1>ENISE<span>STAGES</span></h1><p id="user-welcome" style="font-size:0.8rem; margin:5px 0 0 0;"></p></header>
+        <main id="list-container"></main>
+        <button onclick="logout()" style="display:block; margin: 20px auto; border:none; background:none; color:grey;">Déconnexion</button>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAkOE-XWdAlgT2ihoPkBUtR2lmvE78JfMA",
+            authDomain: "enisebet.firebaseapp.com",
+            projectId: "enisebet",
+            storageBucket: "enisebet.firebasestorage.app",
+            messagingSenderId: "389153667220",
+            appId: "1:389153667220:web:0c3530e05911c0da1e5c81"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        document.getElementById('btn-login').onclick = () => {
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('pass').value;
+            signInWithEmailAndPassword(auth, email, pass).catch(err => alert("Erreur : " + err.message));
+        };
+
+        window.logout = () => signOut(auth).then(() => location.reload());
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user && user.emailVerified) {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('app').style.display = 'block';
+                document.getElementById('user-welcome').innerText = "Session : " + user.email;
+                loadStages(user.email);
+            }
+        });
+
+        async function loadStages(email) {
+            const docSnap = await getDoc(doc(db, "jobs", email.toLowerCase().trim()));
+            const container = document.getElementById('list-container');
+            if (docSnap.exists()) {
+                const offers = docSnap.data().offers || [];
+                container.innerHTML = offers.map(j => `
+                    <div class="stage-card">
+                        <div style="font-weight:bold; font-size:1.1rem;">${j.title}</div>
+                        <div class="company">${j.company}</div>
+                        <div class="location">📍 ${j.location} | via ${j.site}</div>
+                        <a href="${j.job_url}" target="_blank" class="btn-apply">Voir l'offre</a>
+                    </div>
+                `).join('');
+            } else {
+                container.innerHTML = "<p style='text-align:center; margin-top:50px; color:#888;'>Aucun stage trouvé. Ton robot tourne cette nuit !</p>";
+            }
+        }
+    </script>
+</body>
+</html>
