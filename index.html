@@ -8,18 +8,18 @@
         :root {
             --enise-red: #e2001a;
             --apple-bg: #f5f5f7;
-            --card-bg: rgba(255, 255, 255, 0.8);
+            --card-bg: #ffffff;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
             background-color: var(--apple-bg);
             margin: 0;
             color: #1d1d1f;
             -webkit-font-smoothing: antialiased;
         }
 
-        /* --- HEADER STYLE APPLE --- */
+        /* --- HEADER GLASSMORPHISM --- */
         header {
             position: sticky;
             top: 0;
@@ -43,27 +43,27 @@
 
         #user-welcome-msg {
             font-size: 0.9rem;
-            margin-top: 5px;
-            font-weight: 400;
+            margin-top: 4px;
             color: #86868b;
         }
 
         /* --- BOUTON MISE À JOUR --- */
         .update-bar {
-            padding: 10px;
+            padding: 12px;
             text-align: center;
         }
 
         #btn-force-update {
-            background: none;
+            background: white;
             border: 1px solid var(--enise-red);
             color: var(--enise-red);
-            padding: 6px 16px;
+            padding: 8px 18px;
             border-radius: 20px;
             font-size: 0.75rem;
-            font-weight: 500;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
 
         #btn-force-update:active {
@@ -72,7 +72,7 @@
             transform: scale(0.95);
         }
 
-        /* --- CARDS STYLE iOS --- */
+        /* --- LISTE DES STAGES --- */
         .container {
             padding: 10px 20px;
             max-width: 500px;
@@ -80,35 +80,32 @@
         }
 
         .stage-card {
-            background: white;
-            border-radius: 18px;
+            background: var(--card-bg);
+            border-radius: 20px;
             padding: 20px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+            margin-bottom: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
             border: 0.5px solid rgba(0,0,0,0.05);
-            transition: transform 0.2s ease;
         }
 
         .job-title {
             font-size: 1.1rem;
             font-weight: 700;
-            margin-bottom: 4px;
-            line-height: 1.2;
+            margin-bottom: 6px;
+            line-height: 1.3;
         }
 
         .company {
             color: var(--enise-red);
             font-weight: 600;
             font-size: 0.95rem;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
 
         .location {
             font-size: 0.8rem;
             color: #86868b;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
+            margin-bottom: 18px;
         }
 
         .btn-apply {
@@ -116,38 +113,40 @@
             background-color: var(--enise-red);
             color: white;
             text-align: center;
-            padding: 12px;
-            border-radius: 12px;
+            padding: 14px;
+            border-radius: 14px;
             text-decoration: none;
             font-weight: 600;
             font-size: 0.9rem;
+            transition: opacity 0.2s;
         }
 
-        /* --- AUTH SCREEN --- */
+        .btn-apply:active { opacity: 0.7; }
+
+        /* --- AUTHENTIFICATION --- */
         .auth-screen {
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 90vh;
-            padding: 30px;
-            text-align: center;
+            padding: 20px;
         }
 
         .auth-card {
             background: white;
-            padding: 30px;
-            border-radius: 25px;
+            padding: 35px 25px;
+            border-radius: 28px;
             width: 100%;
             max-width: 320px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.05);
         }
 
         input {
             width: 100%;
-            padding: 14px;
-            margin: 8px 0;
-            border-radius: 12px;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 14px;
             border: 1px solid #d2d2d7;
             background: #f5f5f7;
             font-size: 1rem;
@@ -155,15 +154,15 @@
             outline: none;
         }
 
-        input:focus { border-color: var(--enise-red); }
+        input:focus { border-color: var(--enise-red); background: white; }
 
         .btn-main {
             width: 100%;
-            padding: 14px;
+            padding: 16px;
             background: var(--enise-red);
             color: white;
             border: none;
-            border-radius: 12px;
+            border-radius: 14px;
             font-weight: 600;
             font-size: 1rem;
             margin-top: 15px;
@@ -171,7 +170,7 @@
         }
 
         .toggle-link {
-            margin-top: 20px;
+            margin-top: 25px;
             font-size: 0.85rem;
             color: #86868b;
             cursor: pointer;
@@ -181,7 +180,7 @@
 
         .logout-btn {
             display: block;
-            margin: 40px auto;
+            margin: 50px auto;
             color: #86868b;
             font-size: 0.8rem;
             background: none;
@@ -195,23 +194,24 @@
 
     <div id="auth-screen" class="auth-screen">
         <div class="auth-card">
-            <h1 style="font-size:1.8rem; margin-bottom:10px;">ENISE<span>STAGES</span></h1>
-            <p id="auth-title" style="font-weight:600; margin-bottom:20px;">Connexion</p>
+            <h1 style="font-size:2rem; margin-bottom:10px;">ENISE<span>STAGES</span></h1>
+            <p id="auth-title" style="font-weight:500; color:#86868b; margin-bottom:25px;">Connexion</p>
             
             <input type="email" id="auth-email" placeholder="prenom.nom@enise.fr">
             <input type="password" id="auth-password" placeholder="Mot de passe">
             
             <button id="btn-auth-action" class="btn-main">Se connecter</button>
-            <div id="toggle-mode" class="toggle-link">Nouveau ? <b>S'inscrire</b></div>
+            <div id="toggle-mode" class="toggle-link">Pas de compte ? <b>S'inscrire</b></div>
         </div>
     </div>
 
     <div id="verify-screen" class="auth-screen" style="display:none;">
         <div class="auth-card">
-            <div style="font-size: 3rem; margin-bottom:15px;">📧</div>
+            <div style="font-size: 3.5rem; margin-bottom:20px;">✉️</div>
             <h2>Vérifie tes mails</h2>
-            <p style="font-size:0.9rem; color:#666;">Un lien a été envoyé à :<br><b id="sent-email" style="color:var(--enise-red)"></b></p>
-            <button class="btn-main" onclick="location.reload()">J'ai vérifié</button>
+            <p style="color:#86868b; font-size:0.95rem;">Un lien a été envoyé à :<br><b id="sent-email" style="color:var(--enise-red)"></b></p>
+            <button class="btn-main" onclick="location.reload()">J'ai vérifié mon mail</button>
+            <p class="toggle-link" onclick="logout()">Changer d'adresse</p>
         </div>
     </div>
 
@@ -222,12 +222,12 @@
         </header>
 
         <div class="update-bar">
-            <button id="btn-force-update">🔄 Mettre à jour (2 min)</button>
+            <button id="btn-force-update">🔄 Mettre à jour les offres</button>
         </div>
 
         <main id="list-container" class="container"></main>
 
-        <button onclick="logout()" class="logout-btn">Se déconnecter</button>
+        <button onclick="logout()" class="logout-btn">Déconnexion</button>
     </div>
 
     <script type="module">
@@ -250,25 +250,23 @@
 
         let isSignupMode = false;
 
-        // BASCULE MODE
         document.getElementById('toggle-mode').onclick = () => {
             isSignupMode = !isSignupMode;
             document.getElementById('auth-title').innerText = isSignupMode ? "Inscription" : "Connexion";
-            document.getElementById('btn-auth-action').innerText = isSignupMode ? "S'inscrire" : "Se connecter";
-            document.getElementById('toggle-mode').innerHTML = isSignupMode ? "Déjà un compte ? <b>Se connecter</b>" : "Nouveau ? <b>S'inscrire</b>";
+            document.getElementById('btn-auth-action').innerText = isSignupMode ? "Créer un compte" : "Se connecter";
+            document.getElementById('toggle-mode').innerHTML = isSignupMode ? "Déjà inscrit ? <b>Se connecter</b>" : "Pas de compte ? <b>S'inscrire</b>";
         };
 
-        // BOUTON AUTH
         document.getElementById('btn-auth-action').onclick = async () => {
             const email = document.getElementById('auth-email').value.toLowerCase().trim();
             const pass = document.getElementById('auth-password').value;
-            if (!email.endsWith("@enise.fr")) return alert("Mail @enise.fr requis !");
+            if (!email.endsWith("@enise.fr")) return alert("Utilise ton mail @enise.fr");
             
             try {
                 if (isSignupMode) {
                     const cred = await createUserWithEmailAndPassword(auth, email, pass);
                     await sendEmailVerification(cred.user);
-                    alert("Compte créé ! Vérifie tes mails.");
+                    alert("Compte créé ! Regarde tes mails.");
                 } else {
                     await signInWithEmailAndPassword(auth, email, pass);
                 }
@@ -284,7 +282,7 @@
                     document.getElementById('verify-screen').style.display = 'flex';
                     document.getElementById('sent-email').innerText = user.email;
                 } else {
-                    // EXTRACTION NOM
+                    // Extraction nom/prénom
                     const namePart = user.email.split('@')[0];
                     const parts = namePart.split('.');
                     const firstName = parts[0].charAt(0).toUpperCase() + parts[0].slice(1);
@@ -304,7 +302,7 @@
 
         async function loadStages(email) {
             const container = document.getElementById('list-container');
-            container.innerHTML = "<p style='text-align:center; color:#888; margin-top:30px;'>Recherche de tes stages...</p>";
+            container.innerHTML = "<p style='text-align:center; color:#86868b; margin-top:40px;'>Recherche d'offres...</p>";
             
             const docSnap = await getDoc(doc(db, "jobs", email.toLowerCase()));
             if (docSnap.exists()) {
@@ -318,17 +316,17 @@
                     </div>
                 `).join('');
             } else {
-                container.innerHTML = "<div style='text-align:center; margin-top:40px; color:#888;'>Bienvenue ! Le robot passera cette nuit pour remplir ta liste.</div>";
+                container.innerHTML = "<div style='text-align:center; margin-top:50px; color:#86868b;'>Bienvenue ! Le robot passera cette nuit chercher tes stages.</div>";
             }
         }
 
-        // BOUTON FORCER MISE À JOUR (GHP TOKEN)
+        // --- GESTION DU BOUTON GITHUB ---
         document.getElementById('btn-force-update').onclick = async () => {
             const GITHUB_TOKEN = "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";
             const REPO_OWNER = "bmocydlarz";
-            const REPO_NAME = "Stage";
+            const REPO_NAME = "Stage"; // Corrigé avec la majuscule des logs
 
-            if(!confirm("Lancer une recherche maintenant ? (2 min d'attente)")) return;
+            if(!confirm("Lancer une recherche maintenant ? (Attente de 2 min)")) return;
 
             try {
                 const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/actions/workflows/update.yml/dispatches`, {
@@ -341,11 +339,11 @@
                 });
 
                 if (response.ok) {
-                    alert("🚀 Robot lancé ! Reviens dans 2 minutes.");
+                    alert("🚀 Robot activé ! Les offres apparaîtront dans environ 2 minutes.");
                 } else {
-                    alert("Erreur lors du réveil du robot.");
+                    alert("Erreur réseau GitHub. Réessaie plus tard.");
                 }
-            } catch (e) { alert("Erreur réseau."); }
+            } catch (e) { alert("Erreur de connexion."); }
         };
     </script>
 </body>
