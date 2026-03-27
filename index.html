@@ -4,37 +4,59 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ENISE STAGES</title>
-    <link rel="stylesheet" href="style.css"> <style>
+    <style>
         :root { --enise-red: #e2001a; --bg-gray: #f4f4f4; }
-        body { font-family: sans-serif; background: var(--bg-gray); margin: 0; padding-bottom: 80px; }
-        header { background: white; padding: 15px; text-align: center; border-bottom: 2px solid var(--enise-red); }
+        body { font-family: sans-serif; background: var(--bg-gray); margin: 0; padding-bottom: 30px; }
+        header { background: white; padding: 15px; text-align: center; border-bottom: 2px solid var(--enise-red); position: sticky; top: 0; z-index: 100; }
         h1 { color: var(--enise-red); margin: 0; font-size: 1.5rem; }
         .stage-card { background: white; margin: 15px; padding: 15px; border-radius: 12px; border-left: 5px solid var(--enise-red); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
         .company { color: #555; font-weight: bold; margin: 5px 0; }
         .location { font-size: 0.85rem; color: #888; }
         .btn-apply { display: block; background: var(--enise-red); color: white; text-align: center; padding: 10px; border-radius: 8px; text-decoration: none; margin-top: 10px; font-weight: bold; }
-        #login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
+        
+        /* Écrans Auth */
+        .auth-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; text-align: center; }
+        input { padding: 12px; margin: 8px; width: 85%; max-width: 300px; border: 1px solid #ddd; border-radius: 8px; }
+        .btn-auth { background: var(--enise-red); color: white; border: none; padding: 12px 40px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 85%; max-width: 300px; }
+        .toggle-link { margin-top: 20px; color: #666; font-size: 0.9rem; cursor: pointer; }
+        .toggle-link strong { color: var(--enise-red); }
     </style>
 </head>
 <body>
 
-    <div id="login-screen">
+    <div id="auth-screen" class="auth-container">
         <h2 style="color:var(--enise-red)">ENISE<span>STAGES</span></h2>
-        <p>Connecte-toi avec ton mail ENISE</p>
-        <input type="email" id="email" placeholder="prenom.nom@enise.fr" style="padding:10px; margin:5px; width:80%">
-        <input type="password" id="pass" placeholder="Mot de passe" style="padding:10px; margin:5px; width:80%">
-        <button id="btn-login" style="background:var(--enise-red); color:white; border:none; padding:12px 30px; border-radius:5px; margin-top:10px">Se connecter</button>
+        <h3 id="auth-title">Connexion</h3>
+        <p id="auth-desc" style="font-size:0.8rem; color:#888;">Accès réservé @enise.fr</p>
+        
+        <input type="email" id="auth-email" placeholder="prenom.nom@enise.fr">
+        <input type="password" id="auth-password" placeholder="Mot de passe">
+        
+        <button id="btn-auth-action" class="btn-auth">Se connecter</button>
+        
+        <div class="toggle-link" id="toggle-mode">Nouveau ? <strong>S'inscrire</strong></div>
+    </div>
+
+    <div id="verify-screen" class="auth-container" style="display:none;">
+        <div style="font-size: 3rem;">📩</div>
+        <h2>Vérifie tes mails !</h2>
+        <p>Un lien a été envoyé à : <br><strong id="sent-email" style="color:var(--enise-red)"></strong></p>
+        <button class="btn-auth" onclick="location.reload()">J'ai vérifié mon mail</button>
+        <div class="toggle-link" onclick="logout()">Retour</div>
     </div>
 
     <div id="app" style="display:none;">
-        <header><h1>ENISE<span>STAGES</span></h1><p id="user-welcome" style="font-size:0.8rem; margin:5px 0 0 0;"></p></header>
+        <header>
+            <h1>ENISE<span>STAGES</span></h1>
+            <div id="user-info" style="font-size:0.7rem; color:#666; margin-top:5px;"></div>
+        </header>
         <main id="list-container"></main>
-        <button onclick="logout()" style="display:block; margin: 20px auto; border:none; background:none; color:grey;">Déconnexion</button>
+        <button onclick="logout()" style="display:block; margin: 30px auto; border:none; background:none; color:#bbb; text-decoration: underline;">Se déconnecter</button>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -50,26 +72,61 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        document.getElementById('btn-login').onclick = () => {
-            const email = document.getElementById('email').value;
-            const pass = document.getElementById('pass').value;
-            signInWithEmailAndPassword(auth, email, pass).catch(err => alert("Erreur : " + err.message));
+        let isSignupMode = false;
+
+        // BASCULE CONNEXION / INSCRIPTION
+        document.getElementById('toggle-mode').onclick = () => {
+            isSignupMode = !isSignupMode;
+            document.getElementById('auth-title').innerText = isSignupMode ? "Inscription" : "Connexion";
+            document.getElementById('btn-auth-action').innerText = isSignupMode ? "S'inscrire" : "Se connecter";
+            document.getElementById('toggle-mode').innerHTML = isSignupMode ? "Déjà un compte ? <strong>Se connecter</strong>" : "Nouveau ? <strong>S'inscrire</strong>";
+        };
+
+        // ACTION BOUTON
+        document.getElementById('btn-auth-action').onclick = async () => {
+            const email = document.getElementById('auth-email').value.toLowerCase().trim();
+            const pass = document.getElementById('auth-password').value;
+            
+            if (!email.endsWith("@enise.fr")) return alert("Utilise ton mail @enise.fr !");
+            if (pass.length < 6) return alert("Mot de passe trop court (6 min).");
+
+            try {
+                if (isSignupMode) {
+                    const cred = await createUserWithEmailAndPassword(auth, email, pass);
+                    await sendEmailVerification(cred.user);
+                    alert("Compte créé ! Vérifie tes mails.");
+                } else {
+                    await signInWithEmailAndPassword(auth, email, pass);
+                }
+            } catch (err) { alert(err.message); }
         };
 
         window.logout = () => signOut(auth).then(() => location.reload());
 
         onAuthStateChanged(auth, async (user) => {
-            if (user && user.emailVerified) {
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('app').style.display = 'block';
-                document.getElementById('user-welcome').innerText = "Session : " + user.email;
-                loadStages(user.email);
+            if (user) {
+                if (!user.emailVerified) {
+                    document.getElementById('auth-screen').style.display = 'none';
+                    document.getElementById('verify-screen').style.display = 'flex';
+                    document.getElementById('sent-email').innerText = user.email;
+                } else {
+                    document.getElementById('auth-screen').style.display = 'none';
+                    document.getElementById('verify-screen').style.display = 'none';
+                    document.getElementById('app').style.display = 'block';
+                    document.getElementById('user-info').innerText = "Connecté : " + user.email;
+                    loadStages(user.email);
+                }
+            } else {
+                document.getElementById('auth-screen').style.display = 'flex';
+                document.getElementById('app').style.display = 'none';
             }
         });
 
         async function loadStages(email) {
-            const docSnap = await getDoc(doc(db, "jobs", email.toLowerCase().trim()));
             const container = document.getElementById('list-container');
+            container.innerHTML = "<p style='text-align:center; padding:20px; color:#888;'>Chargement de tes offres...</p>";
+            
+            const docSnap = await getDoc(doc(db, "jobs", email));
             if (docSnap.exists()) {
                 const offers = docSnap.data().offers || [];
                 container.innerHTML = offers.map(j => `
@@ -81,7 +138,11 @@
                     </div>
                 `).join('');
             } else {
-                container.innerHTML = "<p style='text-align:center; margin-top:50px; color:#888;'>Aucun stage trouvé. Ton robot tourne cette nuit !</p>";
+                container.innerHTML = `
+                    <div style="text-align:center; margin-top:50px; padding:20px;">
+                        <p style="color:#888;">Bienvenue sur ENISE Stages !</p>
+                        <p style="font-size:0.9rem; color:#aaa;">Ton profil vient d'être créé. Le robot va chercher des stages pour toi cette nuit (vers 3h du matin).</p>
+                    </div>`;
             }
         }
     </script>
