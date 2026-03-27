@@ -1,8 +1,8 @@
-name: Mise a jour des Stages
+name: Script de Scraping vers Firebase
 
 on:
   schedule:
-    # S'exécute automatiquement toutes les nuits à 3h du matin (heure UTC)
+    # S'exécute tous les jours à 3h00 du matin (UTC)
     - cron: '0 3 * * *'
   workflow_dispatch:
     # Permet de lancer le bouton "Run workflow" manuellement pour tester
@@ -10,10 +10,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
-    permissions:
-      contents: write  # Donne au robot le droit de modifier index.html
-
     steps:
       - name: 1. Recuperation du code
         uses: actions/checkout@v4
@@ -23,18 +19,12 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: 3. Installation des bibliotheques
+      - name: 3. Installation des outils
         run: |
-          pip install python-jobspy pandas
+          pip install python-jobspy pandas firebase-admin
 
-      - name: 4. Execution du scraper
+      - name: 4. Execution du scraper vers Firebase
+        # On passe le secret Firebase au script Python
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
         run: python scraper.py
-
-      - name: 5. Mise a jour du fichier HTML sur GitHub
-        run: |
-          git config --global user.name 'GitHub Action'
-          git config --global user.email 'action@github.com'
-          git add index.html
-          # Si aucune offre n'est trouvée, on ne fait rien pour éviter une erreur
-          git commit -m "Mise à jour des offres de stage" || echo "Pas de changement"
-          git push
