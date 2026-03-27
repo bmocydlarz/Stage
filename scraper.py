@@ -12,103 +12,78 @@ def init_firebase():
             service_account_info = json.loads(os.getenv('FIREBASE_SERVICE_ACCOUNT'))
             cred = credentials.Certificate(service_account_info)
             firebase_admin.initialize_app(cred)
-            print("✅ Firebase initialisé.")
-        except Exception as e:
-            print(f"❌ Erreur initialisation Firebase : {e}")
+        except: pass
     return firestore.client()
 
-# --- 2. FONCTION SCRAPING JOBTEASER (ANTI-TIMEOUT) ---
+# --- 2. FONCTION SCRAPING JOBTEASER ---
 def scrape_jobteaser(email, password, keywords):
     results = []
-    print(f"🤖 [ROBOT] Démarrage du module Haute-Fidélité (V-Fast)...")
+    print(f"🤖 [ROBOT] Tentative par URL Directe (Bypass Interface)...")
     
     with sync_playwright() as p:
-        # Lancement furtif
-        browser = p.chromium.launch(headless=True, args=[
-            '--disable-blink-features=AutomationControlled',
-            '--no-sandbox'
-        ])
-        
+        browser = p.chromium.launch(headless=True, args=['--disable-blink-features=AutomationControlled'])
+        # On définit un contexte avec des permissions pour éviter les popups
         context = browser.new_context(
             viewport={'width': 1920, 'height': 1080},
-            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+            java_script_enabled=True
         )
         
-        page = context.new_page()
-        page.add_init_script("delete navigator.__proto__.webdriver")
-        
-        # Injection des cookies (Session Baptiste)
+        # Injection des cookies
         cookies_json = os.getenv('JOBTEASER_COOKIES')
         if cookies_json:
-            try:
-                context.add_cookies(json.loads(cookies_json))
-                print("✅ Cookies de session injectés.")
-            except Exception as e:
-                print(f"⚠️ Erreur format cookies : {e}")
+            context.add_cookies(json.loads(cookies_json))
+
+        page = context.new_page()
+        page.add_init_script("delete navigator.__proto__.webdriver")
 
         try:
-            # ÉTAPE 1 : Accès Dashboard (Rapide)
-            print("🤖 [ROBOT] Connexion au portail école...")
-            page.goto("https://ec-lyon.jobteaser.com/fr/dashboard", wait_until="commit")
-            time.sleep(4) # Pause fixe plus fiable que networkidle
-
-            # ÉTAPE 2 : Accès direct à la page des offres
-            print("🤖 [ROBOT] Accès à la page des offres...")
-            page.goto("https://ec-lyon.jobteaser.com/fr/job-offers", wait_until="commit")
-            
-            # On attend que l'interface de recherche soit là
-            try:
-                page.wait_for_selector('input[type="search"], .sk-SearchInput_input', timeout=20000)
-                print("✅ [ROBOT] Interface des offres chargée.")
-            except:
-                print(f"⚠️ Interface non détectée, tentative de continuation... URL: {page.url}")
-
-            # ÉTAPE 3 : Boucle de recherche organique
             for kw in keywords:
-                print(f"--- 🔎 Recherche : {kw} ---")
-                try:
-                    # On cible la barre de recherche
-                    search_input = page.locator('input[type="search"], #query, .sk-SearchInput_input').first
-                    search_input.click()
-                    
-                    # On efface et on tape doucement
-                    page.keyboard.press("Control+A")
-                    page.keyboard.press("Backspace")
-                    page.keyboard.type(kw, delay=random.randint(50, 120))
-                    page.keyboard.press("Enter")
-                    
-                    # Attente de l'apparition des cartes (Sélecteur Skiller de ton HTML)
-                    print("🤖 [ROBOT] Attente du rendu des offres...")
-                    page.wait_for_selector('a[class*="sk-Card_main"]', timeout=15000)
-                    time.sleep(3) # Laisse le JS finir l'affichage des titres
+                # On utilise l'URL directe que tu as validée
+                kw_encoded = urllib.parse.quote_plus(kw)
+                # URL spécifique au portail EC-LYON
+                target_url = f"https://ec-lyon.jobteaser.com/fr/job-offers?query={kw_encoded}"
+                
+                print(f"--- 🔎 URL : {target_url} ---")
+                page.goto(target_url, wait_until="commit")
+                
+                # On attend 8 secondes (JobTeaser est lent à charger ses offres via API)
+                time.sleep(8)
 
-                    offers = page.locator('a[class*="sk-Card_main"]').all()
-                    print(f"🎯 {len(offers)} offres détectées pour '{kw}'.")
+                # Si on voit "Just a moment", on attend encore un peu
+                if "Just a moment" in page.title():
+                    print("⚠️ Cloudflare challenge en cours... patience.")
+                    time.sleep(10)
 
-                    for offer in offers:
-                        try:
-                            # Titre via la classe précise
-                            title = offer.locator('h3[class*="JobAdCard_title"]').inner_text()
-                            # Entreprise via data-testid
-                            company = offer.locator('[data-testid="jobad-card-company-name"]').inner_text()
-                            # Lien direct
-                            href = offer.get_attribute('href')
-                            
-                            if title and company and href:
-                                results.append({
-                                    'title': title.strip(),
-                                    'company': company.strip(),
-                                    'location': 'Exclu JobTeaser (ENISE)',
-                                    'job_url': f"https://ec-lyon.jobteaser.com{href}" if href.startswith('/') else href,
-                                    'site': 'jobteaser'
-                                })
-                        except: continue
-                except Exception as e:
-                    print(f"⚠️ Pas de résultats ou blocage pour '{kw}'.")
-                    continue
+                # Extraction via les sélecteurs Skiller de ton HTML debug
+                offers = page.locator('a[class*="sk-Card_main"]').all()
+                
+                if not offers:
+                    # Sélecteur de secours : tous les liens d'offres
+                    offers = page.locator('a[href*="/fr/job-offers/"]').all()
+
+                print(f"🎯 {len(offers)} éléments détectés.")
+
+                for offer in offers:
+                    try:
+                        # Extraction du titre (cherche le h3 à l'intérieur)
+                        title = offer.locator('h3').first.inner_text()
+                        # Entreprise (via testid)
+                        company = offer.locator('[data-testid="jobad-card-company-name"]').first.inner_text()
+                        href = offer.get_attribute('href')
+                        
+                        if title and company and href:
+                            results.append({
+                                'title': title.strip(),
+                                'company': company.strip(),
+                                'location': 'JobTeaser (ENISE)',
+                                'job_url': f"https://ec-lyon.jobteaser.com{href}" if href.startswith('/') else href,
+                                'site': 'jobteaser'
+                            })
+                    except: continue
 
         except Exception as e:
-            print(f"❌ Erreur critique Scraping : {e}")
+            print(f"❌ Erreur : {e}")
         finally:
             browser.close()
             
@@ -117,53 +92,32 @@ def scrape_jobteaser(email, password, keywords):
 # --- 3. EXECUTION PRINCIPALE ---
 if __name__ == "__main__":
     db = init_firebase()
-    
-    USERS = {
-        "baptiste.mocydlarz@etu-enise.ec-lyon.fr": {"villes": ["Saint-Étienne", "Lille"], "dist": 30}
-    }
-
+    USERS = {"baptiste.mocydlarz@etu-enise.ec-lyon.fr": {"villes": ["Saint-Étienne", "Lille"], "dist": 30}}
     MOTS_CLES = ["Stage Génie Mécanique", "Stage Conception CAO", "Stage Industrialisation", "Stage R&D"]
     JT_PASS = os.getenv('JOBTEASER_PASS')
 
     for email, prefs in USERS.items():
         all_results = []
-
-        # A. SCRAPING PUBLIC (LinkedIn/Indeed via JobSpy)
+        
+        # A. Public
         print(f"🔎 Scraping Public pour {email}...")
         for loc in prefs["villes"]:
             for kw in MOTS_CLES:
                 try:
-                    jobs = scrape_jobs(
-                        site_name=["linkedin", "indeed"],
-                        search_term=kw,
-                        location=f"{loc}, France",
-                        distance=prefs["dist"],
-                        results_wanted=10,
-                        hours_old=336,
-                        country_indeed='france'
-                    )
-                    if not jobs.empty: 
-                        all_results.append(jobs)
-                        print(f"✅ {len(jobs)} offres publiques trouvées pour {kw} à {loc}")
-                except Exception as e: 
-                    print(f"⚠️ Erreur JobSpy ({kw}): {e}")
-                    continue
+                    jobs = scrape_jobs(site_name=["linkedin", "indeed"], search_term=kw, location=f"{loc}, France", distance=prefs["dist"], results_wanted=8, hours_old=336, country_indeed='france')
+                    if not jobs.empty: all_results.append(jobs)
+                except: continue
 
-        # B. SCRAPING PRIVÉ (JobTeaser)
+        # B. JobTeaser
         if JT_PASS:
             jt_data = scrape_jobteaser(email, JT_PASS, MOTS_CLES)
-            if jt_data: 
-                all_results.append(pd.DataFrame(jt_data))
+            if jt_data: all_results.append(pd.DataFrame(jt_data))
 
-        # C. MISE À JOUR FIREBASE
+        # C. Firebase
         if all_results:
             final_df = pd.concat(all_results).drop_duplicates(subset=['job_url'])
-            final_df = final_df.astype(str)
-            
             db.collection('jobs').document(email.lower()).set({
-                'offers': final_df.to_dict(orient='records'),
+                'offers': final_df.astype(str).to_dict(orient='records'),
                 'updated_at': firestore.SERVER_TIMESTAMP
             })
-            print(f"✨ Terminé ! {len(final_df)} offres au total stockées pour {email}")
-        else:
-            print(f"❌ Aucune offre trouvée pour {email}")
+            print(f"✨ Terminé ! {len(final_df)} offres stockées.")
