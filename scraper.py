@@ -20,7 +20,7 @@ if os.getenv('FIREBASE_SERVICE_ACCOUNT'):
     }
 
     # Élargissement des termes pour avoir plus d'offres
-    MOTS_CLES = ["Stage Génie Mécanique", "Stage Ingénieur Mécanique", "Stage Conception", "Stage Maintenance"]
+    MOTS_CLES = ["livreur"]
 
     print("🚀 Robot ENISE STAGES en route...")
 
