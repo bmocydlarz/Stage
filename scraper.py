@@ -16,68 +16,72 @@ def init_firebase():
 # --- 2. FONCTION SCRAPING JOBTEASER ---
 def scrape_jobteaser(email, password, keywords):
     results = []
-    print(f"🤖 [ROBOT] Tentative d'accès direct au flux école...")
+    print(f"🤖 [ROBOT] Tentative de bypass via Cookies de session...")
     
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True, args=['--disable-blink-features=AutomationControlled'])
-        context = browser.new_context(user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36")
-        page = context.new_page()
-        page.add_init_script("delete navigator.__proto__.webdriver")
-
+        browser = p.chromium.launch(headless=True)
+        # On utilise un contexte propre
+        context = browser.new_context(
+            viewport={'width': 1920, 'height': 1080},
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+        )
+        
+        # Injection des cookies exportés
         try:
-            # 1. Connexion (Obligatoire pour avoir le cookie de session)
-            page.goto("https://ec-lyon.jobteaser.com/fr/users/sign_in")
-            page.fill('input[type="email"]', email)
-            page.fill('input[type="password"]', password)
-            page.keyboard.press("Enter")
-            page.wait_for_url("**/dashboard**", timeout=30000)
-            print("✅ Session école ouverte.")
+            cookies_json = os.getenv('JOBTEASER_COOKIES')
+            if cookies_json:
+                cookies = json.loads(cookies_json)
+                context.add_cookies(cookies)
+                print("✅ Badge d'accès (Cookies) injecté.")
+        except Exception as e:
+            print(f"❌ Erreur format Cookies : {e}")
 
-            # 2. On attend un peu sur le dashboard pour "chauffer" la session
-            time.sleep(5)
+        page = context.new_page()
+        
+        try:
+            for kw in keywords:
+                # On utilise l'URL de recherche du portail EC-LYON
+                search_url = f"https://ec-lyon.jobteaser.com/fr/job-offers?query={kw.replace(' ', '+')}"
+                print(f"---")
+                print(f"🤖 [ROBOT] Navigation directe : {search_url}")
+                
+                # On charge la page
+                page.goto(search_url, wait_until="domcontentloaded")
+                
+                # Pause pour laisser le contenu dynamique arriver
+                time.sleep(7) 
+                
+                print(f"🤖 [ROBOT] Titre de la page : {page.title()}")
 
-            # 3. On tente l'accès direct à ton URL spécifique
-            # On utilise domcontentloaded pour être plus rapide que le script de blocage Cloudflare
-            target_url = "https://ec-lyon.jobteaser.com/fr/job-offers?query=Stage+R&q=stage+genie+m%C3%A9canique"
-            print(f"🤖 [ROBOT] Navigation directe vers : {target_url}")
-            
-            page.goto(target_url, wait_until="domcontentloaded")
-            
-            # On attend 10 secondes pour laisser Cloudflare passer ou les offres charger
-            time.sleep(10)
-            
-            print(f"🤖 [ROBOT] Page chargée. Titre : {page.title()}")
-
-            # Si Cloudflare est là, on tente un "clic" au milieu de l'écran (parfois ça valide le challenge)
-            if "Just a moment" in page.title():
-                print("⚠️ Cloudflare détecté. Tentative de clic de validation...")
-                page.mouse.click(200, 200)
-                time.sleep(5)
-
-            # 4. Extraction des offres
-            if page.locator("article").count() > 0:
-                offers = page.locator("article").all()
-                print(f"✨ SUCCÈS : {len(offers)} offres trouvées !")
-                for offer in offers:
-                    try:
-                        title = offer.locator('h2, h3').first.inner_text()
-                        company = offer.locator('p').first.inner_text()
-                        link = offer.locator('a').first.get_attribute('href')
-                        results.append({
-                            'title': title.strip(),
-                            'company': company.strip(),
-                            'location': 'Exclu JobTeaser (ENISE)',
-                            'job_url': f"https://ec-lyon.jobteaser.com{link}" if link.startswith('/') else link,
-                            'site': 'jobteaser'
-                        })
-                    except: continue
-            else:
-                print("❌ Toujours aucune offre visible. Cloudflare a gagné cette manche.")
+                # On vérifie si les offres sont là
+                if page.locator("article").count() > 0:
+                    offers = page.locator("article").all()
+                    print(f"🎯 TROUVÉ : {len(offers)} offres pour '{kw}'")
+                    
+                    for offer in offers:
+                        try:
+                            title = offer.locator('h2, h3').first.inner_text()
+                            company = offer.locator('p').first.inner_text()
+                            link = offer.locator('a').first.get_attribute('href')
+                            
+                            if title and company and link:
+                                full_link = f"https://ec-lyon.jobteaser.com{link}" if link.startswith('/') else link
+                                results.append({
+                                    'title': title.strip(),
+                                    'company': company.strip(),
+                                    'location': 'Exclu JobTeaser (ENISE/Centrale)',
+                                    'job_url': full_link,
+                                    'site': 'jobteaser'
+                                })
+                        except: continue
+                else:
+                    print(f"🤖 [ROBOT] ⚠️ Aucune offre visible. (Cloudflare bloque peut-être encore ou cookies expirés)")
 
         except Exception as e:
-            print(f"❌ Erreur : {e}")
+            print(f"🤖 [ROBOT] ❌ Erreur : {e}")
         finally:
             browser.close()
+            
     return results
 
 # --- 3. EXECUTION PRINCIPALE ---
