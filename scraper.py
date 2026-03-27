@@ -8,82 +8,90 @@ import os, json, time, random, urllib.parse
 # --- 1. INITIALISATION FIREBASE ---
 def init_firebase():
     if not firebase_admin._apps:
-        service_account_info = json.loads(os.getenv('FIREBASE_SERVICE_ACCOUNT'))
-        cred = credentials.Certificate(service_account_info)
-        firebase_admin.initialize_app(cred)
+        try:
+            service_account_info = json.loads(os.getenv('FIREBASE_SERVICE_ACCOUNT'))
+            cred = credentials.Certificate(service_account_info)
+            firebase_admin.initialize_app(cred)
+            print("✅ Firebase initialisé.")
+        except Exception as e:
+            print(f"❌ Erreur initialisation Firebase : {e}")
     return firestore.client()
 
-# --- 2. FONCTION SCRAPING JOBTEASER ---
+# --- 2. FONCTION SCRAPING JOBTEASER (ANTI-TIMEOUT) ---
 def scrape_jobteaser(email, password, keywords):
     results = []
-    print(f"🤖 [ROBOT] Démarrage du module Haute-Fidélité...")
+    print(f"🤖 [ROBOT] Démarrage du module Haute-Fidélité (V-Fast)...")
     
     with sync_playwright() as p:
-        # On lance un navigateur "propre"
+        # Lancement furtif
         browser = p.chromium.launch(headless=True, args=[
             '--disable-blink-features=AutomationControlled',
             '--no-sandbox'
         ])
         
-        # On simule un écran standard et un utilisateur réel
         context = browser.new_context(
             viewport={'width': 1920, 'height': 1080},
             user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"
         )
         
-        # On cache les traces de Playwright
         page = context.new_page()
         page.add_init_script("delete navigator.__proto__.webdriver")
         
-        # Injection des cookies de session (Secret GitHub)
+        # Injection des cookies (Session Baptiste)
         cookies_json = os.getenv('JOBTEASER_COOKIES')
         if cookies_json:
             try:
                 context.add_cookies(json.loads(cookies_json))
-                print("✅ Cookies injectés.")
-            except: print("⚠️ Erreur format cookies.")
+                print("✅ Cookies de session injectés.")
+            except Exception as e:
+                print(f"⚠️ Erreur format cookies : {e}")
 
         try:
-            # ÉTAPE 1 : On va sur le Dashboard pour valider la session
+            # ÉTAPE 1 : Accès Dashboard (Rapide)
             print("🤖 [ROBOT] Connexion au portail école...")
-            page.goto("https://ec-lyon.jobteaser.com/fr/dashboard", wait_until="networkidle")
-            time.sleep(3)
+            page.goto("https://ec-lyon.jobteaser.com/fr/dashboard", wait_until="commit")
+            time.sleep(4) # Pause fixe plus fiable que networkidle
 
-            # ÉTAPE 2 : On va physiquement sur la page des offres
+            # ÉTAPE 2 : Accès direct à la page des offres
             print("🤖 [ROBOT] Accès à la page des offres...")
-            page.goto("https://ec-lyon.jobteaser.com/fr/job-offers", wait_until="networkidle")
-            time.sleep(5)
+            page.goto("https://ec-lyon.jobteaser.com/fr/job-offers", wait_until="commit")
+            
+            # On attend que l'interface de recherche soit là
+            try:
+                page.wait_for_selector('input[type="search"], .sk-SearchInput_input', timeout=20000)
+                print("✅ [ROBOT] Interface des offres chargée.")
+            except:
+                print(f"⚠️ Interface non détectée, tentative de continuation... URL: {page.url}")
 
-            # ÉTAPE 3 : Boucle de recherche organique (on tape au clavier)
+            # ÉTAPE 3 : Boucle de recherche organique
             for kw in keywords:
                 print(f"--- 🔎 Recherche : {kw} ---")
-                
                 try:
                     # On cible la barre de recherche
                     search_input = page.locator('input[type="search"], #query, .sk-SearchInput_input').first
                     search_input.click()
                     
-                    # On efface et on tape comme un humain
+                    # On efface et on tape doucement
                     page.keyboard.press("Control+A")
                     page.keyboard.press("Backspace")
-                    page.keyboard.type(kw, delay=random.randint(100, 200))
+                    page.keyboard.type(kw, delay=random.randint(50, 120))
                     page.keyboard.press("Enter")
                     
-                    # On attend que les cartes d'offres (Skiller) apparaissent
-                    # Sélecteur issu de ton debug.html
+                    # Attente de l'apparition des cartes (Sélecteur Skiller de ton HTML)
+                    print("🤖 [ROBOT] Attente du rendu des offres...")
                     page.wait_for_selector('a[class*="sk-Card_main"]', timeout=15000)
-                    time.sleep(4) 
+                    time.sleep(3) # Laisse le JS finir l'affichage des titres
 
                     offers = page.locator('a[class*="sk-Card_main"]').all()
-                    print(f"🎯 {len(offers)} offres détectées.")
+                    print(f"🎯 {len(offers)} offres détectées pour '{kw}'.")
 
                     for offer in offers:
                         try:
-                            # Titre via la classe JobAdCard_title
+                            # Titre via la classe précise
                             title = offer.locator('h3[class*="JobAdCard_title"]').inner_text()
-                            # Entreprise via le data-testid
+                            # Entreprise via data-testid
                             company = offer.locator('[data-testid="jobad-card-company-name"]').inner_text()
-                            # Lien direct depuis la balise <a>
+                            # Lien direct
                             href = offer.get_attribute('href')
                             
                             if title and company and href:
@@ -95,12 +103,12 @@ def scrape_jobteaser(email, password, keywords):
                                     'site': 'jobteaser'
                                 })
                         except: continue
-                except:
-                    print(f"⚠️ Pas de résultats pour '{kw}' (Timeout ou Cloudflare)")
+                except Exception as e:
+                    print(f"⚠️ Pas de résultats ou blocage pour '{kw}'.")
                     continue
 
         except Exception as e:
-            print(f"❌ Erreur critique : {e}")
+            print(f"❌ Erreur critique Scraping : {e}")
         finally:
             browser.close()
             
@@ -120,7 +128,7 @@ if __name__ == "__main__":
     for email, prefs in USERS.items():
         all_results = []
 
-        # A. LinkedIn / Indeed (JobSpy)
+        # A. SCRAPING PUBLIC (LinkedIn/Indeed via JobSpy)
         print(f"🔎 Scraping Public pour {email}...")
         for loc in prefs["villes"]:
             for kw in MOTS_CLES:
@@ -134,15 +142,20 @@ if __name__ == "__main__":
                         hours_old=336,
                         country_indeed='france'
                     )
-                    if not jobs.empty: all_results.append(jobs)
-                except: continue
+                    if not jobs.empty: 
+                        all_results.append(jobs)
+                        print(f"✅ {len(jobs)} offres publiques trouvées pour {kw} à {loc}")
+                except Exception as e: 
+                    print(f"⚠️ Erreur JobSpy ({kw}): {e}")
+                    continue
 
-        # B. JobTeaser (Méthode Organique)
+        # B. SCRAPING PRIVÉ (JobTeaser)
         if JT_PASS:
             jt_data = scrape_jobteaser(email, JT_PASS, MOTS_CLES)
-            if jt_data: all_results.append(pd.DataFrame(jt_data))
+            if jt_data: 
+                all_results.append(pd.DataFrame(jt_data))
 
-        # C. Envoi Firebase
+        # C. MISE À JOUR FIREBASE
         if all_results:
             final_df = pd.concat(all_results).drop_duplicates(subset=['job_url'])
             final_df = final_df.astype(str)
@@ -151,4 +164,6 @@ if __name__ == "__main__":
                 'offers': final_df.to_dict(orient='records'),
                 'updated_at': firestore.SERVER_TIMESTAMP
             })
-            print(f"✨ Terminé ! {len(final_df)} offres stockées pour {email}")
+            print(f"✨ Terminé ! {len(final_df)} offres au total stockées pour {email}")
+        else:
+            print(f"❌ Aucune offre trouvée pour {email}")
