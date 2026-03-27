@@ -35,43 +35,51 @@ def scrape_jobteaser(email, password, keywords):
         try:
             for kw in keywords:
                 search_url = f"https://ec-lyon.jobteaser.com/fr/job-offers?query={kw.replace(' ', '+')}"
+                print(f"---")
                 print(f"🤖 [ROBOT] Recherche : {kw}")
                 
-                page.goto(search_url, wait_until="networkidle")
-                time.sleep(5) # Laisser le temps au JS de Skiller d'injecter les offres
+                try:
+                    # 1. On y va, mais on n'attend PAS que tout le réseau soit calme
+                    page.goto(search_url, wait_until="commit") 
+                    
+                    # 2. On attend spécifiquement qu'UNE carte d'offre soit visible (max 20s)
+                    # C'est BEAUCOUP plus fiable que networkidle
+                    print("🤖 [ROBOT] Attente de l'apparition des offres...")
+                    page.wait_for_selector('a[class*="sk-Card_main"]', timeout=20000)
+                    
+                    # Petit sleep pour que le texte des titres finisse de charger
+                    time.sleep(2) 
 
-                # On cherche toutes les cartes d'offres (balises <a> principales)
-                # Le sélecteur 'a.sk-Card_main__9_8dw' est le plus précis d'après ton HTML
-                offers = page.locator('a[class*="sk-Card_main"]').all()
-                
-                if not offers:
-                    # Backup : essayer de chercher par le titre si la classe sk-Card a changé
-                    offers = page.locator('div[class*="JobAdCard"]').all()
+                    # 3. On récupère les offres
+                    offers = page.locator('a[class*="sk-Card_main"]').all()
+                    print(f"🎯 {len(offers)} offres détectées pour '{kw}'")
 
-                print(f"🎯 {len(offers)} offres détectées pour '{kw}'")
-
-                for offer in offers:
-                    try:
-                        # Extraction du titre (h3)
-                        title = offer.locator('h3[class*="JobAdCard_title"]').inner_text()
-                        
-                        # Extraction de l'entreprise (p avec data-testid)
-                        company = offer.locator('[data-testid="jobad-card-company-name"]').inner_text()
-                        
-                        # Le lien est soit sur l'élément lui-même (si c'est le <a>), soit à l'intérieur
-                        link = offer.get_attribute('href')
-                        
-                        if title and company and link:
-                            full_link = f"https://ec-lyon.jobteaser.com{link}" if link.startswith('/') else link
-                            results.append({
-                                'title': title.strip(),
-                                'company': company.strip(),
-                                'location': 'Exclu JobTeaser (ENISE)',
-                                'job_url': full_link,
-                                'site': 'jobteaser'
-                            })
-                    except:
-                        continue
+                    for offer in offers:
+                        try:
+                            # Sélecteur précis basé sur ton HTML
+                            title_el = offer.locator('h3[class*="JobAdCard_title"]')
+                            company_el = offer.locator('[data-testid="jobad-card-company-name"]')
+                            
+                            title = title_el.inner_text()
+                            company = company_el.inner_text()
+                            link = offer.get_attribute('href')
+                            
+                            if title and company and link:
+                                full_link = f"https://ec-lyon.jobteaser.com{link}" if link.startswith('/') else link
+                                results.append({
+                                    'title': title.strip(),
+                                    'company': company.strip(),
+                                    'location': 'Exclu JobTeaser (ENISE)',
+                                    'job_url': full_link,
+                                    'site': 'jobteaser'
+                                })
+                        except:
+                            continue
+                            
+                except Exception as e:
+                    print(f"⚠️ Pas d'offres trouvées ou page trop lente pour '{kw}'")
+                    # On continue au mot-clé suivant au lieu de tout couper
+                    continue
                         
         except Exception as e:
             print(f"❌ Erreur durant le scraping : {e}")
