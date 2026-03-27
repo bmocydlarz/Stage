@@ -1,33 +1,40 @@
 name: Mise a jour des Stages
+
 on:
   schedule:
-    # Cette ligne dit de s'exécuter tous les jours à 3h00 du matin (heure UTC)
+    # S'exécute automatiquement toutes les nuits à 3h du matin (heure UTC)
     - cron: '0 3 * * *'
-  workflow_dispatch: # Cette ligne te permet de lancer la recherche manuellement quand tu veux
+  workflow_dispatch:
+    # Permet de lancer le bouton "Run workflow" manuellement pour tester
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write  # Donne au robot le droit de modifier index.html
+
     steps:
-      - name: Recupere le code du depot
+      - name: 1. Recuperation du code
         uses: actions/checkout@v4
 
-      - name: Installe Python
+      - name: 2. Installation de Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
 
-      - name: Installe les outils de scraping
+      - name: 3. Installation des bibliotheques
         run: |
           pip install python-jobspy pandas
 
-      - name: Execute le script de recherche
+      - name: 4. Execution du scraper
         run: python scraper.py
 
-      - name: Sauvegarde la nouvelle page HTML
+      - name: 5. Mise a jour du fichier HTML sur GitHub
         run: |
-          git config --global user.name 'Robot-Scraper'
-          git config --global user.email 'bot@github.com'
+          git config --global user.name 'GitHub Action'
+          git config --global user.email 'action@github.com'
           git add index.html
-          git commit -m "Mise à jour automatique des offres de stage" || exit 0
+          # Si aucune offre n'est trouvée, on ne fait rien pour éviter une erreur
+          git commit -m "Mise à jour des offres de stage" || echo "Pas de changement"
           git push
