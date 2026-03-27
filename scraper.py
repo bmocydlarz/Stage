@@ -43,28 +43,38 @@ def scrape_jobteaser(email, password, keywords):
             print(f"🤖 [ROBOT] ✅ CONNECTÉ ! URL de destination : {page.url}")
 
             # 4. Boucle de recherche
+            # 4. Boucle de recherche FURTIVE
             for kw in keywords:
-                kw_encoded = kw.replace(' ', '+')
-                search_url = f"https://ec-lyon.jobteaser.com/fr/job-offers?query={kw_encoded}&q={kw_encoded}"
-                
                 print(f"---")
-                print(f"🤖 [ROBOT] RECHERCHE EN COURS : '{kw}'")
-                print(f"🤖 [ROBOT] Je me rends sur : {search_url}")
+                print(f"🤖 [ROBOT] Recherche furtive pour : '{kw}'")
                 
-                page.goto(search_url)
-                # On attend que la page soit stable
-                page.wait_for_load_state("domcontentloaded")
-                print(f"🤖 [ROBOT] Page chargée. URL confirmée : {page.url}")
-                
+                # Au lieu de charger une URL, on utilise la barre de recherche déjà présente
+                # Si on est perdu, on revient au dashboard école
+                if "job-offers" not in page.url:
+                    page.goto("https://ec-lyon.jobteaser.com/fr/job-offers")
+                    time.sleep(3)
+
                 try:
-                    # On attend que les cartes d'offres apparaissent
-                    print(f"🤖 [ROBOT] J'attends l'apparition des balises <article>...")
-                    page.wait_for_selector('article', timeout=15000)
-                    time.sleep(3) 
+                    # 1. On trouve la barre de recherche
+                    search_input = page.locator('input[type="search"], #query, .jt-search-input').first
+                    search_input.click()
+                    # On efface l'ancien texte
+                    page.keyboard.press("Control+A")
+                    page.keyboard.press("Backspace")
+                    # On tape lentement (simulateur d'humain)
+                    search_input.type(kw, delay=100)
+                    page.keyboard.press("Enter")
+                    
+                    print(f"🤖 [ROBOT] Mot-clé tapé. J'attends que Cloudflare me laisse passer...")
+                    
+                    # 2. On attend que le titre de la page change (pour quitter le 'Just a moment')
+                    # On attend que le mot "Offres" ou "Stage" apparaisse dans le titre ou le body
+                    page.wait_for_selector('article', timeout=20000)
+                    
+                    time.sleep(4) # Temps de chargement des résultats
                     
                     offers = page.locator('article').all()
-                    count_kw = len(offers)
-                    print(f"🤖 [ROBOT] 🎯 TROUVÉ : {count_kw} offres détectées pour '{kw}'.")
+                    print(f"🤖 [ROBOT] ✨ Succès ! {len(offers)} offres détectées.")
                     
                     for offer in offers:
                         try:
@@ -77,7 +87,7 @@ def scrape_jobteaser(email, password, keywords):
                                 results.append({
                                     'title': title.strip(),
                                     'company': company.strip(),
-                                    'location': 'Exclu JobTeaser (ENISE/Centrale)',
+                                    'location': 'JobTeaser (ENISE)',
                                     'job_url': full_link,
                                     'site': 'jobteaser'
                                 })
