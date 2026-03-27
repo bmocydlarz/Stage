@@ -16,102 +16,68 @@ def init_firebase():
 # --- 2. FONCTION SCRAPING JOBTEASER ---
 def scrape_jobteaser(email, password, keywords):
     results = []
-    print(f"🤖 [ROBOT] Démarrage du module furtif JobTeaser...")
+    print(f"🤖 [ROBOT] Tentative d'accès direct au flux école...")
     
     with sync_playwright() as p:
-        # Lancement avec masquage des flags d'automatisation
-        browser = p.chromium.launch(headless=True, args=[
-            '--disable-blink-features=AutomationControlled',
-            '--no-sandbox'
-        ])
-        
-        context = browser.new_context(
-            viewport={'width': 1920, 'height': 1080},
-            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
-        )
-
-        # Script pour supprimer la trace "webdriver" détectée par Cloudflare
+        browser = p.chromium.launch(headless=True, args=['--disable-blink-features=AutomationControlled'])
+        context = browser.new_context(user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36")
         page = context.new_page()
         page.add_init_script("delete navigator.__proto__.webdriver")
-        
+
         try:
-            # 1. Connexion via le portail école
-            print(f"🤖 [ROBOT] Accès à ec-lyon.jobteaser.com...")
-            page.goto("https://ec-lyon.jobteaser.com/", wait_until="networkidle")
-            time.sleep(random.uniform(2, 4))
-
-            # Gestion des cookies pour débloquer le formulaire
-            try:
-                page.click('button:has-text("Accepter"), button:has-text("Tout accepter")', timeout=5000)
-                print("🤖 [ROBOT] Cookies acceptés.")
-            except: pass
-
-            # 2. Saisie humaine
-            print(f"🤖 [ROBOT] Saisie des identifiants...")
+            # 1. Connexion (Obligatoire pour avoir le cookie de session)
+            page.goto("https://ec-lyon.jobteaser.com/fr/users/sign_in")
             page.fill('input[type="email"]', email)
-            time.sleep(random.uniform(0.5, 1.5))
             page.fill('input[type="password"]', password)
-            time.sleep(random.uniform(0.5, 1.0))
             page.keyboard.press("Enter")
+            page.wait_for_url("**/dashboard**", timeout=30000)
+            print("✅ Session école ouverte.")
+
+            # 2. On attend un peu sur le dashboard pour "chauffer" la session
+            time.sleep(5)
+
+            # 3. On tente l'accès direct à ton URL spécifique
+            # On utilise domcontentloaded pour être plus rapide que le script de blocage Cloudflare
+            target_url = "https://ec-lyon.jobteaser.com/fr/job-offers?query=Stage+R&q=stage+genie+m%C3%A9canique"
+            print(f"🤖 [ROBOT] Navigation directe vers : {target_url}")
             
-            # Attente de la redirection (Dashboard)
-            page.wait_for_url("**/dashboard**", timeout=45000)
-            print(f"🤖 [ROBOT] ✅ Connexion réussie ! (URL: {page.url})")
-            time.sleep(3)
+            page.goto(target_url, wait_until="domcontentloaded")
+            
+            # On attend 10 secondes pour laisser Cloudflare passer ou les offres charger
+            time.sleep(10)
+            
+            print(f"🤖 [ROBOT] Page chargée. Titre : {page.title()}")
 
-            # 3. Boucle de recherche
-            for kw in keywords:
-                print(f"---")
-                print(f"🤖 [ROBOT] Recherche de : '{kw}'")
-                
-                # Navigation vers la page d'offres
-                page.goto("https://ec-lyon.jobteaser.com/fr/job-offers", wait_until="domcontentloaded")
-                time.sleep(random.uniform(4, 6)) # Pause pour laisser Cloudflare tranquille
+            # Si Cloudflare est là, on tente un "clic" au milieu de l'écran (parfois ça valide le challenge)
+            if "Just a moment" in page.title():
+                print("⚠️ Cloudflare détecté. Tentative de clic de validation...")
+                page.mouse.click(200, 200)
+                time.sleep(5)
 
-                # Vérification anti-blocage
-                if "Just a moment" in page.title():
-                    print("🤖 [ROBOT] 🛡️ Cloudflare détecté. Tentative de passage en force...")
-                    time.sleep(10)
-
-                try:
-                    # On tape le mot-clé dans la barre de recherche
-                    search_input = page.locator('input[type="search"], #query').first
-                    search_input.click()
-                    page.keyboard.type(kw, delay=random.randint(100, 200)) # Tape comme un humain
-                    page.keyboard.press("Enter")
-                    
-                    # Attente des résultats
-                    page.wait_for_selector('article', timeout=20000)
-                    time.sleep(3)
-                    
-                    offers = page.locator('article').all()
-                    print(f"🤖 [ROBOT] ✨ Succès : {len(offers)} offres trouvées.")
-                    
-                    for offer in offers:
-                        try:
-                            title = offer.locator('h2, h3').first.inner_text()
-                            company = offer.locator('p').first.inner_text()
-                            link = offer.locator('a').first.get_attribute('href')
-                            
-                            if title and company and link:
-                                full_link = f"https://ec-lyon.jobteaser.com{link}" if link.startswith('/') else link
-                                results.append({
-                                    'title': title.strip(),
-                                    'company': company.strip(),
-                                    'location': 'Exclu JobTeaser (ENISE)',
-                                    'job_url': full_link,
-                                    'site': 'jobteaser'
-                                })
-                        except: continue
-                except Exception as e:
-                    print(f"🤖 [ROBOT] ❌ Échec sur '{kw}' (Titre: {page.title()})")
-                    continue
+            # 4. Extraction des offres
+            if page.locator("article").count() > 0:
+                offers = page.locator("article").all()
+                print(f"✨ SUCCÈS : {len(offers)} offres trouvées !")
+                for offer in offers:
+                    try:
+                        title = offer.locator('h2, h3').first.inner_text()
+                        company = offer.locator('p').first.inner_text()
+                        link = offer.locator('a').first.get_attribute('href')
+                        results.append({
+                            'title': title.strip(),
+                            'company': company.strip(),
+                            'location': 'Exclu JobTeaser (ENISE)',
+                            'job_url': f"https://ec-lyon.jobteaser.com{link}" if link.startswith('/') else link,
+                            'site': 'jobteaser'
+                        })
+                    except: continue
+            else:
+                print("❌ Toujours aucune offre visible. Cloudflare a gagné cette manche.")
 
         except Exception as e:
-            print(f"🤖 [ROBOT] ❌ ERREUR : {e}")
+            print(f"❌ Erreur : {e}")
         finally:
             browser.close()
-    
     return results
 
 # --- 3. EXECUTION PRINCIPALE ---
