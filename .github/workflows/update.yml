@@ -1,30 +1,27 @@
-name: Script de Scraping vers Firebase
+name: Robot ENISE STAGES
 
 on:
   schedule:
-    # S'exécute tous les jours à 3h00 du matin (UTC)
-    - cron: '0 3 * * *'
-  workflow_dispatch:
-    # Permet de lancer le bouton "Run workflow" manuellement pour tester
+    - cron: '0 3 * * *' # Tous les jours à 3h
+  workflow_dispatch: # Bouton manuel
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: 1. Recuperation du code
-        uses: actions/checkout@v4
+        [span_2](start_span)uses: actions/checkout@v4 # Version actuelle stable[span_2](end_span)
 
       - name: 2. Installation de Python
-        uses: actions/setup-python@v4
+        [span_3](start_span)uses: actions/setup-python@v5 # Passage en v5 pour éviter l'alerte Node.js 20[span_3](end_span)
         with:
-          python-version: '3.10'
+          [span_4](start_span)python-version: '3.11' # Utilisation de 3.11 pour éviter l'alerte d'obsolescence de 3.10[span_4](end_span)
 
       - name: 3. Installation des outils
         run: |
           pip install python-jobspy pandas firebase-admin
 
       - name: 4. Execution du scraper vers Firebase
-        # On passe le secret Firebase au script Python
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
         run: python scraper.py
