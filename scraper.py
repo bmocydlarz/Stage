@@ -35,7 +35,7 @@ if os.getenv('FIREBASE_SERVICE_ACCOUNT'):
                         search_term=kw,
                         location=f"{loc}, France",
                         distance=prefs["dist"],
-                        results_wanted=15,
+                        results_wanted=30,
                         hours_old=336, # On regarde sur 14 jours
                         country_indeed='france'
                     )
