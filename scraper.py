@@ -17,75 +17,58 @@ def init_firebase():
 # --- 2. FONCTION SCRAPING JOBTEASER ---
 def scrape_jobteaser(email, password, keywords):
     results = []
-    print(f"🔑 Tentative de connexion JobTeaser pour {email}...")
+    print(f"🤖 [ROBOT] Démarrage du module JobTeaser...")
     
     with sync_playwright() as p:
-        # On définit un "User Agent" pour ne pas être détecté comme un robot
         browser = p.chromium.launch(headless=True)
-        context = browser.new_context(
-            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
-        )
+        context = browser.new_context(viewport={'width': 1280, 'height': 800})
         page = context.new_page()
         
         try:
+            # 1. Page de Login
             login_url = "https://connect.jobteaser.com/?client_id=e500827d-07fc-4766-97b4-4f960a2835e7&entity_name=Ecole+Centrale+Lyon&organization_domain=ec-lyon&redirect_uri=https%3A%2F%2Fwww.jobteaser.com%2Fusers%2Fauth%2Fconnect%2Fcallback&response_type=code&ui_locales=fr"
-            page.goto(login_url, wait_until="networkidle")
-
-            # --- GESTION DES COOKIES ---
-            # On cherche les boutons classiques "Tout accepter" ou "Accepter"
-            try:
-                # On attend 5 secondes max pour le bouton cookie
-                cookie_button = page.locator('button:has-text("Tout accepter"), button:has-text("Accepter"), #CybotCookiebotDialogBodyLevelButtonLevelOptinAllowAll')
-                if cookie_button.is_visible():
-                    cookie_button.click()
-                    print("🍪 Cookies acceptés")
-            except:
-                pass # Si pas de bandeau, on continue
-
-            # --- CONNEXION ---
+            print(f"🤖 [ROBOT] Je me rends sur la page de connexion...")
+            page.goto(login_url)
+            
+            # 2. Remplissage
             page.fill('input[type="email"]', email)
             page.fill('input[type="password"]', password)
-            
-            # On clique et on attend que la navigation se fasse
+            print(f"🤖 [ROBOT] Identifiants saisis. Je clique sur 'Se connecter'...")
             page.click('button[type="submit"]')
             
-            # On attend qu'un élément de la barre de recherche apparaisse (preuve qu'on est loggé)
-            # 'input' est très générique, on vise un sélecteur stable de JobTeaser
-            page.wait_for_selector('nav, .jt-search-input, [data-testid="search-input"]', timeout=45000)
-            print("✅ Connexion réussie, accès au tableau de bord.")
+            # 3. Vérification de la redirection
+            time.sleep(5) 
+            print(f"🤖 [ROBOT] Statut actuel : Je suis sur la page -> {page.url}")
+            print(f"🤖 [ROBOT] Titre de la page : {page.title()}")
 
-            # --- RECHERCHE ---
-            # --- RECHERCHE ---
+            # 4. Boucle de recherche
             for kw in keywords:
                 search_url = f"https://www.jobteaser.com/fr/job-offers?query={kw.replace(' ', '+')}"
+                print(f"🤖 [ROBOT] Navigation vers la recherche : {kw}")
+                page.goto(search_url)
                 
-                # CHANGEMENT ICI : on attend seulement le chargement du DOM, pas le calme réseau
-                page.goto(search_url, wait_until="domcontentloaded")
-                
-                # On attend spécifiquement qu'un article apparaisse
-                try:
-                    page.wait_for_selector('article', timeout=15000)
-                except:
-                    print(f"   ⚠️ Aucune offre affichée pour {kw}")
-                    continue
-                
-                # Petit délai pour laisser le temps au JS de remplir les articles
-                time.sleep(2) 
+                # On attend que le contenu se stabilise
+                page.wait_for_load_state("networkidle", timeout=10000) 
+                print(f"🤖 [ROBOT] Page de recherche chargée. URL actuelle : {page.url}")
+
+                # On vérifie si des articles existent
+                articles_count = page.locator('article').count()
+                print(f"🤖 [ROBOT] J'ai détecté {articles_count} balises <article> sur cette page.")
+
+                if articles_count == 0:
+                    # Si 0 article, on prend un screenshot invisible pour le debug (facultatif)
+                    print(f"🤖 [ROBOT] ⚠️ Bizarre, aucun article visible. Voici les 200 premiers caractères du texte de la page :")
+                    print(page.content()[:200] + "...")
                 
                 offers = page.locator('article').all()
                 for offer in offers:
                     try:
-                        # Sélecteurs plus robustes (on prend le premier h2/h3 pour le titre)
-                        title_el = offer.locator('h2, h3').first
-                        company_el = offer.locator('p').first
-                        link_el = offer.locator('a').first
+                        title = offer.locator('h2, h3').first.inner_text()
+                        company = offer.locator('p').first.inner_text()
+                        link = offer.locator('a').first.get_attribute('href')
                         
-                        if title_el and company_el:
-                            title = title_el.inner_text()
-                            company = company_el.inner_text()
-                            link = link_el.get_attribute('href')
+                        if title and company and link:
                             full_link = f"https://www.jobteaser.com{link}" if link.startswith('/') else link
-                            
                             results.append({
                                 'title': title.strip(),
                                 'company': company.strip(),
@@ -94,12 +77,15 @@ def scrape_jobteaser(email, password, keywords):
                                 'site': 'jobteaser'
                             })
                     except: continue
-                print(f"   🔎 {kw} : {len(results)} offres trouvées")
+                
+                print(f"🤖 [ROBOT] Fin de l'analyse pour '{kw}'. Total cumulé : {len(results)} offres.")
 
         except Exception as e:
-            print(f"⚠️ Erreur JobTeaser : {e}")
+            print(f"🤖 [ROBOT] ❌ ERREUR CRITIQUE : {e}")
+            print(f"🤖 [ROBOT] J'étais sur la page : {page.url}")
         finally:
             browser.close()
+    
     return results
 
 # --- 3. EXECUTION PRINCIPALE ---
