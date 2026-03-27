@@ -2,53 +2,107 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ENISE STAGES</title>
     <style>
-        :root { --enise-red: #e2001a; --sport-yellow: #ffcc00; }
-        body { font-family: sans-serif; background: #f4f4f4; margin: 0; padding-bottom: 20px; }
-        
-        /* Style ENISE BET original */
-        header { background: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--enise-red); }
-        h1 { color: #333; margin: 0; font-size: 1.5rem; font-weight: bold; }
-        h1 span { color: var(--enise-red); }
+        :root {
+            --enise-red: #e2001a;
+            --apple-bg: #f5f5f7;
+            --card-bg: #ffffff;
+        }
 
-        .auth-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
-        .login-card { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 80%; max-width: 350px; text-align: center; }
-        
-        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
-        .btn-main { background: var(--enise-red); color: white; border: none; padding: 12px; width: 100%; border-radius: 5px; font-weight: bold; cursor: pointer; }
-        
-        /* Liste des stages type "Prochains DS" */
-        .stage-item { background: white; margin: 10px; padding: 15px; border-radius: 8px; border-left: 5px solid var(--enise-red); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .job-title { font-weight: bold; font-size: 1.1rem; color: #222; }
-        .company { color: var(--enise-red); font-weight: bold; margin: 5px 0; }
-        .details { font-size: 0.85rem; color: #666; }
-        .btn-link { display: inline-block; margin-top: 10px; color: var(--enise-red); text-decoration: none; font-weight: bold; font-size: 0.9rem; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--apple-bg);
+            margin: 0;
+            color: #1d1d1f;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- HEADER GLASS --- */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 15px 20px;
+            border-bottom: 0.5px solid rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        header h1 { font-size: 1.1rem; font-weight: 700; margin: 0; letter-spacing: -0.5px; }
+        header span { color: var(--enise-red); }
+
+        #user-welcome { font-size: 0.85rem; color: #86868b; margin-top: 4px; }
+
+        /* --- CONTAINER --- */
+        .container { padding: 15px 20px; max-width: 500px; margin: 0 auto; }
+        .section-label { font-size: 0.8rem; font-weight: 600; color: #86868b; text-transform: uppercase; margin: 15px 0 10px 5px; display: block; }
+
+        /* --- CARDS --- */
+        .stage-card {
+            background: var(--card-bg);
+            border-radius: 18px;
+            padding: 18px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+            border: 0.5px solid rgba(0,0,0,0.05);
+        }
+
+        .job-title { font-size: 1.05rem; font-weight: 700; color: #000; margin-bottom: 4px; line-height: 1.3; }
+        .company { color: var(--enise-red); font-weight: 600; font-size: 0.95rem; margin-bottom: 8px; }
+        .details { font-size: 0.8rem; color: #86868b; margin-bottom: 15px; }
+
+        .btn-apple {
+            display: block;
+            background-color: var(--enise-red);
+            color: white;
+            text-align: center;
+            padding: 12px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: opacity 0.2s;
+        }
+        .btn-apple:active { opacity: 0.6; }
+
+        /* --- LOGIN --- */
+        .auth-screen { display: flex; align-items: center; justify-content: center; height: 90vh; }
+        .auth-card { background: white; padding: 40px 30px; border-radius: 30px; width: 100%; max-width: 320px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.05); }
+        input { width: 100%; padding: 14px; margin: 8px 0; border-radius: 12px; border: 1px solid #d2d2d7; background: #f5f5f7; font-size: 1rem; box-sizing: border-box; outline: none; }
+        input:focus { border-color: var(--enise-red); background: #fff; }
+        .btn-login { width: 100%; padding: 14px; background: var(--enise-red); color: white; border: none; border-radius: 12px; font-weight: 600; font-size: 1rem; margin-top: 15px; cursor: pointer; }
+
+        .logout-link { display: block; margin: 40px auto; color: #86868b; font-size: 0.8rem; text-decoration: none; text-align: center; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div id="auth-screen" class="auth-container">
-        <div class="login-card">
-            <h1>ENISE<span>STAGES</span></h1>
-            <p style="color:#888; font-size:0.8rem;">Accès réservé @enise.fr</p>
+    <div id="auth-screen">
+        <div class="auth-card">
+            <h1 style="font-size:1.8rem; margin-bottom:5px;">ENISE<span>STAGES</span></h1>
+            <p style="color:#86868b; margin-bottom:25px; font-size:0.9rem;">Accès étudiant</p>
             <input type="email" id="email" placeholder="prenom.nom@enise.fr">
             <input type="password" id="pass" placeholder="Mot de passe">
-            <button class="btn-main" id="btn-login">Se connecter / S'inscrire</button>
+            <button class="btn-login" id="btn-auth">Continuer</button>
         </div>
     </div>
 
     <div id="app" style="display:none;">
         <header>
             <h1>ENISE<span>STAGES</span></h1>
-            <div id="user-pill" style="background:#eee; padding:5px 10px; border-radius:20px; font-size:0.7rem; font-weight:bold;"></div>
+            <div id="user-welcome"></div>
         </header>
 
-        <h2 style="margin: 20px 15px 10px;">💼 Mes Offres</h2>
-        <div id="list-container"></div>
-        
-        <p onclick="logout()" style="text-align:center; color:#aaa; font-size:0.8rem; margin-top:30px; cursor:pointer;">Déconnexion</p>
+        <div class="container">
+            <span class="section-label">Mes offres personnalisées</span>
+            <div id="list-container"></div>
+        </div>
+
+        <div class="logout-link" onclick="logout()">Se déconnecter</div>
     </div>
 
     <script type="module">
@@ -69,17 +123,15 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        document.getElementById('btn-login').onclick = async () => {
+        document.getElementById('btn-auth').onclick = async () => {
             const email = document.getElementById('email').value.toLowerCase().trim();
             const pass = document.getElementById('pass').value;
-            if (!email.endsWith("@enise.fr")) return alert("Mail ENISE requis !");
-            
+            if(!email.endsWith("@enise.fr")) return alert("Utilise ton mail @enise.fr");
             try {
                 await signInWithEmailAndPassword(auth, email, pass);
             } catch (e) {
                 try {
                     await createUserWithEmailAndPassword(auth, email, pass);
-                    alert("Compte créé !");
                 } catch (err) { alert(err.message); }
             }
         };
@@ -90,29 +142,38 @@
             if (user) {
                 document.getElementById('auth-screen').style.display = 'none';
                 document.getElementById('app').style.display = 'block';
-                document.getElementById('user-pill').innerText = user.email.split('@')[0];
+                
+                // Extraction Prénom Nom pour le "Bonjour"
+                const parts = user.email.split('@')[0].split('.');
+                const firstName = parts[0].charAt(0).toUpperCase() + parts[0].slice(1);
+                const lastName = parts.length > 1 ? parts[1].charAt(0).toUpperCase() + parts[1].slice(1) : "";
+                document.getElementById('user-welcome').innerHTML = `Bonjour <b>${firstName} ${lastName}</b> 👋`;
+                
                 loadStages(user.email);
             }
         });
 
         async function loadStages(email) {
             const container = document.getElementById('list-container');
-            container.innerHTML = "<p style='text-align:center;'>Recherche...</p>";
+            container.innerHTML = "<p style='text-align:center; color:#86868b; margin-top:30px;'>Analyse des offres en cours...</p>";
             
-            // On récupère uniquement le document qui a ton nom d'email
-            const docSnap = await getDoc(doc(db, "jobs", email));
+            const docSnap = await getDoc(doc(db, "jobs", email.toLowerCase()));
             if (docSnap.exists()) {
                 const offers = docSnap.data().offers || [];
+                if(offers.length === 0) {
+                    container.innerHTML = "<p style='text-align:center; color:#86868b;'>Le robot n'a rien trouvé aujourd'hui.</p>";
+                    return;
+                }
                 container.innerHTML = offers.map(j => `
-                    <div class="stage-item">
+                    <div class="stage-card">
                         <div class="job-title">${j.title}</div>
                         <div class="company">${j.company}</div>
                         <div class="details">📍 ${j.location} • ${j.site}</div>
-                        <a href="${j.job_url}" target="_blank" class="btn-link">VOIR L'OFFRE →</a>
+                        <a href="${j.job_url}" target="_blank" class="btn-apple">Voir l'offre</a>
                     </div>
                 `).join('');
             } else {
-                container.innerHTML = "<p style='text-align:center; color:#999; margin-top:30px;'>Aucun stage encore trouvé.<br>Le robot passera cette nuit !</p>";
+                container.innerHTML = "<p style='text-align:center; color:#86868b; margin-top:40px;'>Bienvenue ! Tes offres apparaîtront après le prochain passage du robot.</p>";
             }
         }
     </script>
