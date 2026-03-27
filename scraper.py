@@ -14,12 +14,10 @@ if os.getenv('FIREBASE_SERVICE_ACCOUNT'):
     USERS = {
         "baptiste.mocydlarz@enise.fr": {
             "villes": ["Saint-Étienne", "Quesnoy-sur-Deûle", "Lille"],
-            "search_loc": "Saint-Étienne, France",
             "dist": 20 
         },
         "mourad.ismaila@enise.fr": {
             "villes": ["Lyon", "Saint-Étienne", "Bordeaux"],
-            "search_loc": "Lyon, France",
             "dist": 10
         }
     }
@@ -40,18 +38,20 @@ if os.getenv('FIREBASE_SERVICE_ACCOUNT'):
                     country_indeed='france'
                 )
                 if not jobs.empty:
-                    # FILTRE DE SÉCURITÉ : On ne garde que si la ville est dans ta liste
-                    jobs = jobs[jobs['location'].str.contains('|'.join(prefs["villes"]), case=False, na=False)]
-                    all_results.append(jobs)
+                    # Filtre strict : on ne garde que si la ville est dans ta liste perso
+                    mask = jobs['location'].str.contains('|'.join(prefs["villes"]), case=False, na=False)
+                    all_results.append(jobs[mask])
             except:
                 continue
 
         if all_results:
             final_df = pd.concat(all_results).drop_duplicates(subset=['job_url'])
-            [span_2](start_span)final_df = final_df.astype(str) # Évite l'erreur de date[span_2](end_span)
+            # Conversion en texte pour éviter les erreurs de date Firestore
+            final_df = final_df.astype(str)
 
-            # On enregistre dans le document spécifique à l'utilisateur
+            # Enregistrement dans le document spécifique à l'utilisateur
             db.collection('jobs').document(email).set({
                 'offers': final_df.to_dict(orient='records'),
                 'updated_at': firestore.SERVER_TIMESTAMP
             })
+            print(f"✅ Succès pour {email}")
