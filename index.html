@@ -5,229 +5,64 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ENISE STAGES</title>
     <style>
-        :root {
-            --enise-red: #e2001a;
-            --apple-bg: #f5f5f7;
-            --card-bg: #ffffff;
+        :root { --enise-red: #e2001a; --apple-bg: #f5f5f7; }
+        body { font-family: -apple-system, sans-serif; background: var(--apple-bg); margin: 0; color: #1d1d1f; }
+        
+        header { 
+            position: sticky; top: 0; z-index: 100; 
+            background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            padding: 15px; border-bottom: 0.5px solid rgba(0,0,0,0.1); text-align: center;
         }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
-            background-color: var(--apple-bg);
-            margin: 0;
-            color: #1d1d1f;
-            -webkit-font-smoothing: antialiased;
-        }
-
-        /* --- HEADER GLASSMORPHISM --- */
-        header {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            padding: 15px 20px;
-            border-bottom: 0.5px solid rgba(0,0,0,0.1);
-            text-align: center;
-        }
-
-        h1 {
-            font-size: 1.2rem;
-            font-weight: 700;
-            margin: 0;
-            letter-spacing: -0.5px;
-        }
-
+        h1 { font-size: 1.2rem; margin: 0; }
         h1 span { color: var(--enise-red); }
 
-        #user-welcome-msg {
-            font-size: 0.9rem;
-            margin-top: 4px;
-            color: #86868b;
+        .update-bar { padding: 10px; text-align: center; }
+        #btn-force-update { 
+            background: white; border: 1px solid var(--enise-red); color: var(--enise-red); 
+            padding: 8px 20px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; cursor: pointer;
         }
 
-        /* --- BOUTON MISE À JOUR --- */
-        .update-bar {
-            padding: 12px;
-            text-align: center;
+        .stage-card { 
+            background: white; border-radius: 20px; padding: 20px; margin: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 0.5px solid rgba(0,0,0,0.05);
         }
 
-        #btn-force-update {
-            background: white;
-            border: 1px solid var(--enise-red);
-            color: var(--enise-red);
-            padding: 8px 18px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        .job-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 5px; }
+        .company { color: var(--enise-red); font-weight: 600; margin-bottom: 10px; }
+        .btn-apply { 
+            display: block; background: var(--enise-red); color: white; text-align: center; 
+            padding: 12px; border-radius: 12px; text-decoration: none; font-weight: 600; margin-top: 15px;
         }
 
-        #btn-force-update:active {
-            background: var(--enise-red);
-            color: white;
-            transform: scale(0.95);
-        }
-
-        /* --- LISTE DES STAGES --- */
-        .container {
-            padding: 10px 20px;
-            max-width: 500px;
-            margin: 0 auto;
-        }
-
-        .stage-card {
-            background: var(--card-bg);
-            border-radius: 20px;
-            padding: 20px;
-            margin-bottom: 16px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-            border: 0.5px solid rgba(0,0,0,0.05);
-        }
-
-        .job-title {
-            font-size: 1.1rem;
-            font-weight: 700;
-            margin-bottom: 6px;
-            line-height: 1.3;
-        }
-
-        .company {
-            color: var(--enise-red);
-            font-weight: 600;
-            font-size: 0.95rem;
-            margin-bottom: 10px;
-        }
-
-        .location {
-            font-size: 0.8rem;
-            color: #86868b;
-            margin-bottom: 18px;
-        }
-
-        .btn-apply {
-            display: block;
-            background-color: var(--enise-red);
-            color: white;
-            text-align: center;
-            padding: 14px;
-            border-radius: 14px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: opacity 0.2s;
-        }
-
-        .btn-apply:active { opacity: 0.7; }
-
-        /* --- AUTHENTIFICATION --- */
-        .auth-screen {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 90vh;
-            padding: 20px;
-        }
-
-        .auth-card {
-            background: white;
-            padding: 35px 25px;
-            border-radius: 28px;
-            width: 100%;
-            max-width: 320px;
-            text-align: center;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.05);
-        }
-
-        input {
-            width: 100%;
-            padding: 15px;
-            margin: 10px 0;
-            border-radius: 14px;
-            border: 1px solid #d2d2d7;
-            background: #f5f5f7;
-            font-size: 1rem;
-            box-sizing: border-box;
-            outline: none;
-        }
-
-        input:focus { border-color: var(--enise-red); background: white; }
-
-        .btn-main {
-            width: 100%;
-            padding: 16px;
-            background: var(--enise-red);
-            color: white;
-            border: none;
-            border-radius: 14px;
-            font-weight: 600;
-            font-size: 1rem;
-            margin-top: 15px;
-            cursor: pointer;
-        }
-
-        .toggle-link {
-            margin-top: 25px;
-            font-size: 0.85rem;
-            color: #86868b;
-            cursor: pointer;
-        }
-
-        .toggle-link b { color: var(--enise-red); }
-
-        .logout-btn {
-            display: block;
-            margin: 50px auto;
-            color: #86868b;
-            font-size: 0.8rem;
-            background: none;
-            border: none;
-            text-decoration: underline;
-            cursor: pointer;
-        }
+        /* Auth Styles */
+        .auth-screen { display: flex; align-items: center; justify-content: center; height: 90vh; padding: 20px; }
+        .auth-card { background: white; padding: 30px; border-radius: 28px; width: 100%; max-width: 320px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        input { width: 100%; padding: 15px; margin: 10px 0; border-radius: 12px; border: 1px solid #ddd; background: #f5f5f7; box-sizing: border-box; }
+        .btn-main { width: 100%; padding: 15px; background: var(--enise-red); color: white; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <div id="auth-screen" class="auth-screen">
         <div class="auth-card">
-            <h1 style="font-size:2rem; margin-bottom:10px;">ENISE<span>STAGES</span></h1>
-            <p id="auth-title" style="font-weight:500; color:#86868b; margin-bottom:25px;">Connexion</p>
-            
+            <h1>ENISE<span>STAGES</span></h1>
+            <p id="auth-title" style="margin-bottom:20px;">Connexion</p>
             <input type="email" id="auth-email" placeholder="prenom.nom@enise.fr">
             <input type="password" id="auth-password" placeholder="Mot de passe">
-            
             <button id="btn-auth-action" class="btn-main">Se connecter</button>
-            <div id="toggle-mode" class="toggle-link">Pas de compte ? <b>S'inscrire</b></div>
-        </div>
-    </div>
-
-    <div id="verify-screen" class="auth-screen" style="display:none;">
-        <div class="auth-card">
-            <div style="font-size: 3.5rem; margin-bottom:20px;">✉️</div>
-            <h2>Vérifie tes mails</h2>
-            <p style="color:#86868b; font-size:0.95rem;">Un lien a été envoyé à :<br><b id="sent-email" style="color:var(--enise-red)"></b></p>
-            <button class="btn-main" onclick="location.reload()">J'ai vérifié mon mail</button>
-            <p class="toggle-link" onclick="logout()">Changer d'adresse</p>
+            <p onclick="toggleMode()" id="toggle-text" style="font-size:0.8rem; margin-top:15px; cursor:pointer;">Nouveau ? <b>S'inscrire</b></p>
         </div>
     </div>
 
     <div id="app" style="display:none;">
         <header>
             <h1>ENISE<span>STAGES</span></h1>
-            <div id="user-welcome-msg"></div>
+            <div id="user-welcome-msg" style="font-size:0.8rem; color:gray; margin-top:5px;"></div>
         </header>
-
-        <div class="update-bar">
-            <button id="btn-force-update">🔄 Mettre à jour les offres</button>
-        </div>
-
-        <main id="list-container" class="container"></main>
-
-        <button onclick="logout()" class="logout-btn">Déconnexion</button>
+        <div class="update-bar"><button id="btn-force-update">🔄 Mettre à jour les offres</button></div>
+        <main id="list-container"></main>
+        <button onclick="logout()" style="display:block; margin: 30px auto; border:none; background:none; color:gray; text-decoration:underline;">Déconnexion</button>
     </div>
 
     <script type="module">
@@ -248,102 +83,72 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        let isSignupMode = false;
-
-        document.getElementById('toggle-mode').onclick = () => {
-            isSignupMode = !isSignupMode;
-            document.getElementById('auth-title').innerText = isSignupMode ? "Inscription" : "Connexion";
-            document.getElementById('btn-auth-action').innerText = isSignupMode ? "Créer un compte" : "Se connecter";
-            document.getElementById('toggle-mode').innerHTML = isSignupMode ? "Déjà inscrit ? <b>Se connecter</b>" : "Pas de compte ? <b>S'inscrire</b>";
+        let isSignup = false;
+        window.toggleMode = () => {
+            isSignup = !isSignup;
+            document.getElementById('auth-title').innerText = isSignup ? "Inscription" : "Connexion";
+            document.getElementById('btn-auth-action').innerText = isSignup ? "S'inscrire" : "Se connecter";
         };
 
         document.getElementById('btn-auth-action').onclick = async () => {
             const email = document.getElementById('auth-email').value.toLowerCase().trim();
             const pass = document.getElementById('auth-password').value;
-            if (!email.endsWith("@enise.fr")) return alert("Utilise ton mail @enise.fr");
-            
             try {
-                if (isSignupMode) {
+                if (isSignup) {
                     const cred = await createUserWithEmailAndPassword(auth, email, pass);
                     await sendEmailVerification(cred.user);
-                    alert("Compte créé ! Regarde tes mails.");
-                } else {
-                    await signInWithEmailAndPassword(auth, email, pass);
-                }
-            } catch (err) { alert(err.message); }
+                    alert("Lien envoyé !");
+                } else { await signInWithEmailAndPassword(auth, email, pass); }
+            } catch (e) { alert(e.message); }
         };
 
         window.logout = () => signOut(auth).then(() => location.reload());
 
         onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                if (!user.emailVerified) {
-                    document.getElementById('auth-screen').style.display = 'none';
-                    document.getElementById('verify-screen').style.display = 'flex';
-                    document.getElementById('sent-email').innerText = user.email;
-                } else {
-                    // Extraction nom/prénom
-                    const namePart = user.email.split('@')[0];
-                    const parts = namePart.split('.');
-                    const firstName = parts[0].charAt(0).toUpperCase() + parts[0].slice(1);
-                    const lastName = parts.length > 1 ? parts[1].charAt(0).toUpperCase() + parts[1].slice(1) : "";
-
-                    document.getElementById('auth-screen').style.display = 'none';
-                    document.getElementById('verify-screen').style.display = 'none';
-                    document.getElementById('app').style.display = 'block';
-                    document.getElementById('user-welcome-msg').innerHTML = `Bonjour <b>${firstName} ${lastName}</b> 👋`;
-                    loadStages(user.email);
-                }
-            } else {
-                document.getElementById('auth-screen').style.display = 'flex';
-                document.getElementById('app').style.display = 'none';
+            if (user && user.emailVerified) {
+                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('app').style.display = 'block';
+                
+                const namePart = user.email.split('@')[0].split('.');
+                const name = namePart[0].charAt(0).toUpperCase() + namePart[0].slice(1);
+                document.getElementById('user-welcome-msg').innerHTML = `Bonjour <b>${name}</b> 👋`;
+                
+                loadStages(user.email);
             }
         });
 
         async function loadStages(email) {
             const container = document.getElementById('list-container');
-            container.innerHTML = "<p style='text-align:center; color:#86868b; margin-top:40px;'>Recherche d'offres...</p>";
-            
-            const docSnap = await getDoc(doc(db, "jobs", email.toLowerCase()));
+            container.innerHTML = "<p style='text-align:center;'>Chargement...</p>";
+            // FILTRAGE CRUCIAL : On ne charge que le document de l'utilisateur connecté
+            const docSnap = await getDoc(doc(db, "jobs", email.toLowerCase().trim()));
             if (docSnap.exists()) {
                 const offers = docSnap.data().offers || [];
                 container.innerHTML = offers.map(j => `
                     <div class="stage-card">
                         <div class="job-title">${j.title}</div>
                         <div class="company">${j.company}</div>
-                        <div class="location">📍 ${j.location} • via ${j.site}</div>
+                        <div style="font-size:0.8rem; color:gray;">📍 ${j.location} • via ${j.site}</div>
                         <a href="${j.job_url}" target="_blank" class="btn-apply">Voir l'offre</a>
                     </div>
                 `).join('');
             } else {
-                container.innerHTML = "<div style='text-align:center; margin-top:50px; color:#86868b;'>Bienvenue ! Le robot passera cette nuit chercher tes stages.</div>";
+                container.innerHTML = "<p style='text-align:center; padding:20px; color:gray;'>Aucun stage trouvé pour toi. Utilise le bouton de mise à jour !</p>";
             }
         }
 
-        // --- GESTION DU BOUTON GITHUB ---
         document.getElementById('btn-force-update').onclick = async () => {
+            if(!confirm("Lancer le robot ? (2 min)")) return;
             const GITHUB_TOKEN = "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";
-            const REPO_OWNER = "bmocydlarz";
-            const REPO_NAME = "Stage"; // Corrigé avec la majuscule des logs
-
-            if(!confirm("Lancer une recherche maintenant ? (Attente de 2 min)")) return;
-
             try {
-                const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/actions/workflows/update.yml/dispatches`, {
+                const res = await fetch(`https://api.github.com/repos/bmocydlarz/Stage/actions/workflows/update.yml/dispatches`, {
                     method: 'POST',
-                    headers: {
-                        'Authorization': `token ${GITHUB_TOKEN}`,
-                        'Accept': 'application/vnd.github.v3+json',
-                    },
+                    headers: { 'Authorization': `Bearer ${GITHUB_TOKEN}`, 'Accept': 'application/vnd.github.v3+json' },
                     body: JSON.stringify({ ref: 'main' })
                 });
-
-                if (response.ok) {
-                    alert("🚀 Robot activé ! Les offres apparaîtront dans environ 2 minutes.");
-                } else {
-                    alert("Erreur réseau GitHub. Réessaie plus tard.");
-                }
-            } catch (e) { alert("Erreur de connexion."); }
+                if (res.ok || res.status === 204) alert("🚀 Robot réveillé ! Actualise dans 2 min.");
+                else alert("Erreur GitHub. Vérifie ton token.");
+            } catch (e) { alert("Erreur réseau."); }
         };
     </script>
 </body>
