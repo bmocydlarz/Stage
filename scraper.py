@@ -55,31 +55,46 @@ def scrape_jobteaser(email, password, keywords):
             print("✅ Connexion réussie, accès au tableau de bord.")
 
             # --- RECHERCHE ---
+            # --- RECHERCHE ---
             for kw in keywords:
                 search_url = f"https://www.jobteaser.com/fr/job-offers?query={kw.replace(' ', '+')}"
-                page.goto(search_url, wait_until="networkidle")
                 
-                # On attend que les articles (offres) soient chargés
-                page.wait_for_selector('article', timeout=10000)
+                # CHANGEMENT ICI : on attend seulement le chargement du DOM, pas le calme réseau
+                page.goto(search_url, wait_until="domcontentloaded")
+                
+                # On attend spécifiquement qu'un article apparaisse
+                try:
+                    page.wait_for_selector('article', timeout=15000)
+                except:
+                    print(f"   ⚠️ Aucune offre affichée pour {kw}")
+                    continue
+                
+                # Petit délai pour laisser le temps au JS de remplir les articles
+                time.sleep(2) 
                 
                 offers = page.locator('article').all()
                 for offer in offers:
                     try:
-                        # JobTeaser change parfois ses classes, on utilise des sélecteurs plus larges
-                        title = offer.locator('h2, h3').first.inner_text()
-                        company = offer.locator('p').first.inner_text()
-                        link = offer.locator('a').first.get_attribute('href')
-                        full_link = f"https://www.jobteaser.com{link}" if link.startswith('/') else link
+                        # Sélecteurs plus robustes (on prend le premier h2/h3 pour le titre)
+                        title_el = offer.locator('h2, h3').first
+                        company_el = offer.locator('p').first
+                        link_el = offer.locator('a').first
                         
-                        results.append({
-                            'title': title.strip(),
-                            'company': company.strip(),
-                            'location': 'JobTeaser (Centrale/ENISE)',
-                            'job_url': full_link,
-                            'site': 'jobteaser'
-                        })
+                        if title_el and company_el:
+                            title = title_el.inner_text()
+                            company = company_el.inner_text()
+                            link = link_el.get_attribute('href')
+                            full_link = f"https://www.jobteaser.com{link}" if link.startswith('/') else link
+                            
+                            results.append({
+                                'title': title.strip(),
+                                'company': company.strip(),
+                                'location': 'JobTeaser (Centrale/ENISE)',
+                                'job_url': full_link,
+                                'site': 'jobteaser'
+                            })
                     except: continue
-                print(f"   🔎 {kw} : {len(results)} offres trouvées sur JobTeaser")
+                print(f"   🔎 {kw} : {len(results)} offres trouvées")
 
         except Exception as e:
             print(f"⚠️ Erreur JobTeaser : {e}")
