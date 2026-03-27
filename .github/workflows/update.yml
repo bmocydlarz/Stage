@@ -1,0 +1,33 @@
+name: Mise a jour des Stages
+on:
+  schedule:
+    # Cette ligne dit de s'exécuter tous les jours à 3h00 du matin (heure UTC)
+    - cron: '0 3 * * *'
+  workflow_dispatch: # Cette ligne te permet de lancer la recherche manuellement quand tu veux
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Recupere le code du depot
+        uses: actions/checkout@v4
+
+      - name: Installe Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Installe les outils de scraping
+        run: |
+          pip install python-jobspy pandas
+
+      - name: Execute le script de recherche
+        run: python scraper.py
+
+      - name: Sauvegarde la nouvelle page HTML
+        run: |
+          git config --global user.name 'Robot-Scraper'
+          git config --global user.email 'bot@github.com'
+          git add index.html
+          git commit -m "Mise à jour automatique des offres de stage" || exit 0
+          git push
