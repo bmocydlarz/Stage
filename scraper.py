@@ -16,69 +16,65 @@ def init_firebase():
 # --- 2. FONCTION SCRAPING JOBTEASER ---
 def scrape_jobteaser(email, password, keywords):
     results = []
-    print(f"🤖 [ROBOT] Tentative de bypass via Cookies de session...")
+    print(f"🤖 [ROBOT] Analyse du HTML réel (Sélecteurs Skiller)...")
     
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
-        # On utilise un contexte propre
         context = browser.new_context(
             viewport={'width': 1920, 'height': 1080},
             user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
         )
         
-        # Injection des cookies exportés
-        try:
-            cookies_json = os.getenv('JOBTEASER_COOKIES')
-            if cookies_json:
-                cookies = json.loads(cookies_json)
-                context.add_cookies(cookies)
-                print("✅ Badge d'accès (Cookies) injecté.")
-        except Exception as e:
-            print(f"❌ Erreur format Cookies : {e}")
+        # Injection des cookies
+        cookies_json = os.getenv('JOBTEASER_COOKIES')
+        if cookies_json:
+            context.add_cookies(json.loads(cookies_json))
 
         page = context.new_page()
         
         try:
             for kw in keywords:
-                # On utilise l'URL de recherche du portail EC-LYON
                 search_url = f"https://ec-lyon.jobteaser.com/fr/job-offers?query={kw.replace(' ', '+')}"
-                print(f"---")
-                print(f"🤖 [ROBOT] Navigation directe : {search_url}")
+                print(f"🤖 [ROBOT] Recherche : {kw}")
                 
-                # On charge la page
-                page.goto(search_url, wait_until="domcontentloaded")
-                
-                # Pause pour laisser le contenu dynamique arriver
-                time.sleep(7) 
-                
-                print(f"🤖 [ROBOT] Titre de la page : {page.title()}")
+                page.goto(search_url, wait_until="networkidle")
+                time.sleep(5) # Laisser le temps au JS de Skiller d'injecter les offres
 
-                # On vérifie si les offres sont là
-                if page.locator("article").count() > 0:
-                    offers = page.locator("article").all()
-                    print(f"🎯 TROUVÉ : {len(offers)} offres pour '{kw}'")
-                    
-                    for offer in offers:
-                        try:
-                            title = offer.locator('h2, h3').first.inner_text()
-                            company = offer.locator('p').first.inner_text()
-                            link = offer.locator('a').first.get_attribute('href')
-                            
-                            if title and company and link:
-                                full_link = f"https://ec-lyon.jobteaser.com{link}" if link.startswith('/') else link
-                                results.append({
-                                    'title': title.strip(),
-                                    'company': company.strip(),
-                                    'location': 'Exclu JobTeaser (ENISE/Centrale)',
-                                    'job_url': full_link,
-                                    'site': 'jobteaser'
-                                })
-                        except: continue
-                else:
-                    print(f"🤖 [ROBOT] ⚠️ Aucune offre visible. (Cloudflare bloque peut-être encore ou cookies expirés)")
+                # On cherche toutes les cartes d'offres (balises <a> principales)
+                # Le sélecteur 'a.sk-Card_main__9_8dw' est le plus précis d'après ton HTML
+                offers = page.locator('a[class*="sk-Card_main"]').all()
+                
+                if not offers:
+                    # Backup : essayer de chercher par le titre si la classe sk-Card a changé
+                    offers = page.locator('div[class*="JobAdCard"]').all()
 
+                print(f"🎯 {len(offers)} offres détectées pour '{kw}'")
+
+                for offer in offers:
+                    try:
+                        # Extraction du titre (h3)
+                        title = offer.locator('h3[class*="JobAdCard_title"]').inner_text()
+                        
+                        # Extraction de l'entreprise (p avec data-testid)
+                        company = offer.locator('[data-testid="jobad-card-company-name"]').inner_text()
+                        
+                        # Le lien est soit sur l'élément lui-même (si c'est le <a>), soit à l'intérieur
+                        link = offer.get_attribute('href')
+                        
+                        if title and company and link:
+                            full_link = f"https://ec-lyon.jobteaser.com{link}" if link.startswith('/') else link
+                            results.append({
+                                'title': title.strip(),
+                                'company': company.strip(),
+                                'location': 'Exclu JobTeaser (ENISE)',
+                                'job_url': full_link,
+                                'site': 'jobteaser'
+                            })
+                    except:
+                        continue
+                        
         except Exception as e:
-            print(f"🤖 [ROBOT] ❌ Erreur : {e}")
+            print(f"❌ Erreur durant le scraping : {e}")
         finally:
             browser.close()
             
