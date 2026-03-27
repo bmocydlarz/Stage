@@ -2,7 +2,7 @@ name: Robot ENISE STAGES
 
 on:
   schedule:
-    - cron: '0 3 * * *'
+    - cron: '0 3 * * *' # Exécution à 4h ou 5h du matin (heure FR)
   workflow_dispatch:
 
 jobs:
@@ -19,9 +19,11 @@ jobs:
 
       - name: 3. Installation des outils
         run: |
-          pip install python-jobspy pandas firebase-admin
+          pip install python-jobspy pandas firebase-admin playwright
+          playwright install chromium # INDISPENSABLE pour JobTeaser
 
       - name: 4. Execution du scraper vers Firebase
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          JOBTEASER_PASS: ${{ secrets.JOBTEASER_PASS }} # Ton nouveau secret
         run: python scraper.py
