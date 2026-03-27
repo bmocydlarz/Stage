@@ -4,7 +4,6 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 import os, json
 
-# Initialisation Firebase
 if os.getenv('FIREBASE_SERVICE_ACCOUNT'):
     service_info = json.loads(os.getenv('FIREBASE_SERVICE_ACCOUNT'))
     cred = credentials.Certificate(service_info)
@@ -12,60 +11,47 @@ if os.getenv('FIREBASE_SERVICE_ACCOUNT'):
         firebase_admin.initialize_app(cred)
     db = firestore.client()
 
-    # CONFIGURATION DES UTILISATEURS
     USERS = {
         "baptiste.mocydlarz@enise.fr": {
-            "villes": ["Saint-Étienne, France", "Quesnoy-sur-Deûle, France"],
-            "dist": 15 
+            "villes": ["Saint-Étienne", "Quesnoy-sur-Deûle", "Lille"],
+            "search_loc": "Saint-Étienne, France",
+            "dist": 20 
         },
         "mourad.ismaila@enise.fr": {
-            "villes": ["Lyon, France", "Saint-Étienne, France", "Bordeaux, France"],
-            "dist": 5
-        },
-        "trystan.colichet@enise.fr": {
-            "villes": ["Saint-Étienne, France", "Bourges, France"],
-            "dist": 30
-        },
-        "leonard.dupuis@enise.fr": {
-            "villes": ["Saint-Étienne, France", "Saint-Malo, France"],
+            "villes": ["Lyon", "Saint-Étienne", "Bordeaux"],
+            "search_loc": "Lyon, France",
             "dist": 10
         }
     }
-
-    MOTS_CLES = ["Stage Génie Mécanique", "Assistant Ingénieur Mécanique", "Stage Conception Mécanique"]
-
-    print("🚀 Démarrage du robot ENISE STAGES...")
 
     for email, prefs in USERS.items():
         print(f"🔎 Scraping pour : {email}")
         all_results = []
         
-        for ville in prefs["villes"]:
-            for poste in MOTS_CLES:
-                try:
-                    jobs = scrape_jobs(
-                        site_name=["linkedin", "indeed"],
-                        search_term=poste,
-                        location=ville,
-                        distance=prefs["dist"],
-                        results_wanted=15,
-                        hours_old=336, # 14 jours pour plus d'offres
-                        country_indeed='france'
-                    )
-                    if not jobs.empty:
-                        all_results.append(jobs)
-                except:
-                    continue
+        for loc in prefs["villes"]:
+            try:
+                jobs = scrape_jobs(
+                    site_name=["linkedin", "indeed"],
+                    search_term="Stage Génie Mécanique",
+                    location=f"{loc}, France",
+                    distance=prefs["dist"],
+                    results_wanted=20,
+                    hours_old=168,
+                    country_indeed='france'
+                )
+                if not jobs.empty:
+                    # FILTRE DE SÉCURITÉ : On ne garde que si la ville est dans ta liste
+                    jobs = jobs[jobs['location'].str.contains('|'.join(prefs["villes"]), case=False, na=False)]
+                    all_results.append(jobs)
+            except:
+                continue
 
         if all_results:
             final_df = pd.concat(all_results).drop_duplicates(subset=['job_url'])
-            
-            # Correction cruciale pour les erreurs Firestore (vu dans les logs)
-            final_df = final_df.astype(str) 
+            [span_2](start_span)final_df = final_df.astype(str) # Évite l'erreur de date[span_2](end_span)
 
-            # Envoi dans un document portant l'e-mail de l'utilisateur
-            db.collection('jobs').document(email.lower().strip()).set({
+            # On enregistre dans le document spécifique à l'utilisateur
+            db.collection('jobs').document(email).set({
                 'offers': final_df.to_dict(orient='records'),
                 'updated_at': firestore.SERVER_TIMESTAMP
             })
-            print(f"✅ Terminé pour {email}")
