@@ -45,7 +45,7 @@ if os.getenv('FIREBASE_SERVICE_ACCOUNT'):
                     )
                     if not jobs.empty:
                         # Filtrage strict pour éviter les erreurs de ville
-                        all_results.append(jobs[mask])
+                        all_results.append(jobs)
                 except: continue
 
         if all_results:
