@@ -66,17 +66,6 @@
         header span { color: var(--enise-red); }
         #user-welcome { font-size: 0.85rem; color: var(--text-sub); margin-top: 4px; }
 
-        /* STATS */
-        .stats-bar {
-            display: flex; justify-content: center; gap: 18px;
-            padding: 6px 20px 10px; font-size: 0.78rem; color: var(--text-sub);
-        }
-        .stat-item { display: flex; align-items: center; gap: 5px; }
-        .stat-dot { width: 8px; height: 8px; border-radius: 50%; }
-        .stat-dot.all { background: var(--enise-red); }
-        .stat-dot.applied { background: var(--green); }
-        .stat-dot.hidden { background: #aeaeb2; }
-
         /* TABS */
         .tabs { display: flex; border-bottom: 0.5px solid rgba(0,0,0,0.1); padding: 0 20px; }
         .tab-btn {
@@ -129,6 +118,17 @@
 
         /* CONTAINER */
         .container { padding: 10px 20px 20px; max-width: 500px; margin: 0 auto; }
+
+        /* DESKTOP GRID */
+        @media (min-width: 600px) {
+            .container { max-width: 1400px; }
+            #list-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+            #list-container .card-wrapper { margin-bottom: 0; }
+            #applied-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+            .stage-card { transition: all 0.2s ease; }
+            .stage-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.1); transform: translateY(-2px); }
+        }
+
         .section-header {
             display: flex; align-items: center; justify-content: space-between;
             margin: 12px 0 10px 5px;
@@ -150,7 +150,6 @@
             background: var(--card-bg); border-radius: 18px; padding: 18px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.04);
             border: 0.5px solid rgba(0,0,0,0.05);
-            transition: transform 0.3s ease, opacity 0.3s ease;
             position: relative; z-index: 1; touch-action: pan-y; will-change: transform;
         }
         .stage-card.applied-card { opacity: 0.6; }
@@ -215,8 +214,7 @@
         #fireworks-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
         .congrats-text {
             position: relative; z-index: 10; text-align: center; color: white;
-            animation: popIn 0.6s cubic-bezier(0.34,1.56,0.64,1);
-            padding: 20px;
+            animation: popIn 0.6s cubic-bezier(0.34,1.56,0.64,1); padding: 20px;
         }
         .congrats-text .emoji { font-size: 4rem; margin-bottom: 16px; display: block; }
         .congrats-text h2 { font-size: 1.9rem; font-weight: 800; margin: 0 0 10px; letter-spacing: -0.5px; }
@@ -236,15 +234,32 @@
             font-size: 0.82rem; font-weight: 600; color: var(--text-main);
             cursor: pointer; transition: all 0.2s;
         }
-        #filter-toggle-btn.active {
-            background: var(--enise-red); color: white; border-color: var(--enise-red);
-        }
-        #filter-panel {
-            animation: fadeDown 0.2s ease;
-        }
+        #filter-toggle-btn.active { background: var(--enise-red); color: white; border-color: var(--enise-red); }
+        #filter-panel { animation: fadeDown 0.2s ease; }
         @keyframes fadeDown {
             from { opacity: 0; transform: translateY(-6px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ADMIN */
+        .kw-tag {
+            display: flex; align-items: center; justify-content: space-between;
+            background: white; border-radius: 12px; padding: 13px 16px;
+            margin-bottom: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+            border: 0.5px solid rgba(0,0,0,0.06); font-size: 0.9rem;
+        }
+        .kw-delete {
+            background: none; border: none; color: var(--red);
+            font-size: 1.2rem; cursor: pointer; padding: 0 4px; line-height: 1; flex-shrink: 0;
+        }
+        .admin-section-title {
+            font-size: 0.78rem; font-weight: 700; color: var(--text-sub);
+            text-transform: uppercase; letter-spacing: 0.04em; margin: 20px 0 10px 2px;
+        }
+        #api-error {
+            display:none; background:#fff2f2; border:1px solid #ffcdd2;
+            border-radius:12px; padding:14px; margin-top:16px;
+            font-size:0.85rem; color:var(--red);
         }
     </style>
 </head>
@@ -275,6 +290,9 @@
             <button class="tab-btn" id="tab-btn-applied" onclick="switchTab('applied')">
                 Postulées <span class="tab-badge green" id="badge-applied" style="display:none">0</span>
             </button>
+            <button class="tab-btn" id="tab-btn-admin" onclick="switchTab('admin')" style="display:none">
+                ⚙️ Admin
+            </button>
         </div>
         <div class="new-banner" id="new-banner" onclick="dismissBanner()">✨ Nouvelles offres disponibles — Tap pour recharger</div>
     </header>
@@ -285,7 +303,7 @@
     <div id="tab-offers-content">
         <div id="filter-toggle-bar" style="padding:8px 20px 0;">
             <button id="filter-toggle-btn" onclick="toggleFilters()">
-                <span id="filter-icon">⚙️</span> Filtres <span id="filter-active-dot" style="display:none;width:7px;height:7px;background:var(--enise-red);border-radius:50%;display:none;margin-left:4px;vertical-align:middle;"></span>
+                ⚙️ Filtres
             </button>
         </div>
         <div id="filter-panel" style="display:none;">
@@ -309,6 +327,33 @@
                 <span class="offer-count" id="applied-count" style="display:none;background:var(--green)"></span>
             </div>
             <div id="applied-container"></div>
+        </div>
+    </div>
+
+    <!-- TAB ADMIN -->
+    <div id="tab-admin-content" style="display:none;">
+        <div class="container">
+            <div class="section-header" style="margin-top:16px;">
+                <span class="section-label">Mots-clés de recherche</span>
+                <span class="offer-count" id="kw-count" style="background:#636366;display:none"></span>
+            </div>
+            <div id="kw-list"></div>
+            <div style="display:flex;gap:8px;margin:12px 0 24px;">
+                <input type="text" id="kw-input" placeholder="Nouveau mot-clé...">
+                <button class="btn-apple" id="kw-add-btn" style="width:auto;padding:12px 20px;font-size:1.2rem;">+</button>
+            </div>
+            <div class="admin-section-title">Délai anti-ban (secondes)</div>
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px;">
+                <input type="number" id="delay-input" min="2" max="30" value="6"
+                    style="width:80px;padding:12px;border-radius:12px;border:1px solid #d2d2d7;font-size:1rem;text-align:center;">
+                <span style="font-size:0.83rem;color:var(--text-sub)">secondes entre chaque requête JobSpy</span>
+            </div>
+            <button class="btn-apple" onclick="saveConfig()" id="save-btn">💾 Sauvegarder la configuration</button>
+            <div id="save-status" style="text-align:center;font-size:0.85rem;margin-top:14px;color:var(--text-sub);min-height:20px;"></div>
+            <div id="api-error">
+                ❌ Impossible de contacter l'API Flask sur ton NAS.<br>
+                Vérifie que <code>api.py</code> tourne bien sur <code>192.168.1.27:5055</code>.
+            </div>
         </div>
     </div>
 
@@ -358,6 +403,9 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+const ADMIN_EMAIL = 'baptiste.mocydlarz@enise.fr';
+const API_URL = 'http://192.168.1.27:5055';
+
 let allOffers = [];
 let statuses = {};
 let appliedDates = {};
@@ -368,6 +416,7 @@ let activeFilter = 'all';
 let activeSource = 'all';
 let lastSeenCount = 0;
 let fireworksAnimId = null;
+let keywords = [];
 
 // ===== AUTH =====
 document.getElementById('btn-auth').onclick = async () => {
@@ -398,6 +447,11 @@ onAuthStateChanged(auth, async (user) => {
         await loadStages();
         initPullToRefresh();
         startPolling();
+
+        // Onglet admin visible uniquement pour l'admin
+        if (user.email.toLowerCase() === ADMIN_EMAIL) {
+            document.getElementById('tab-btn-admin').style.display = 'flex';
+        }
     }
 });
 
@@ -447,16 +501,18 @@ async function loadStages() {
 
 // ===== TABS =====
 window.switchTab = (tab) => {
-    document.getElementById('tab-offers-content').style.display = tab === 'offers' ? 'block' : 'none';
-    document.getElementById('tab-applied-content').style.display = tab === 'applied' ? 'block' : 'none';
-    document.getElementById('tab-btn-offers').classList.toggle('active', tab === 'offers');
-    document.getElementById('tab-btn-applied').classList.toggle('active', tab === 'applied');
+    ['offers', 'applied', 'admin'].forEach(t => {
+        const c = document.getElementById('tab-' + t + '-content');
+        const b = document.getElementById('tab-btn-' + t);
+        if (c) c.style.display = t === tab ? 'block' : 'none';
+        if (b) b.classList.toggle('active', t === tab);
+    });
+    if (tab === 'admin') loadConfig();
 };
 
 // ===== STATS =====
 function updateStats() {
     const applied = Object.values(statuses).filter(v => v === 'applied').length;
-
     const ab = document.getElementById('badge-applied');
     if (applied > 0) { ab.textContent = applied; ab.style.display = 'inline-flex'; }
     else ab.style.display = 'none';
@@ -469,7 +525,6 @@ function buildFilterBar() {
     const bar = document.getElementById('filter-bar');
     const sourceBar = document.getElementById('source-bar');
 
-    // Filtre villes
     if (cities.length <= 1) { bar.style.display = 'none'; }
     else {
         bar.innerHTML = ['all', ...cities].map(city => `
@@ -477,26 +532,17 @@ function buildFilterBar() {
                 ${city === 'all' ? '🗺 Toutes' : '📍 ' + city}
             </div>`).join('');
         bar.querySelectorAll('.filter-chip').forEach(chip => {
-            chip.addEventListener('click', () => {
-                activeFilter = chip.dataset.city;
-                buildFilterBar();
-                renderOffers();
-            });
+            chip.addEventListener('click', () => { activeFilter = chip.dataset.city; buildFilterBar(); renderOffers(); });
         });
     }
 
-    // Filtre sources
     const sourceLabels = { all: '🔍 Toutes', linkedin: 'LinkedIn', indeed: 'Indeed', jobteaser: 'JobTeaser' };
     sourceBar.innerHTML = ['all', ...sources].map(src => `
         <div class="filter-chip ${src === activeSource ? 'active' : ''}" data-source="${src}">
             ${sourceLabels[src] || src}
         </div>`).join('');
     sourceBar.querySelectorAll('.filter-chip').forEach(chip => {
-        chip.addEventListener('click', () => {
-            activeSource = chip.dataset.source;
-            buildFilterBar();
-            renderOffers();
-        });
+        chip.addEventListener('click', () => { activeSource = chip.dataset.source; buildFilterBar(); renderOffers(); });
     });
 }
 
@@ -520,14 +566,12 @@ function renderOffers() {
         container.innerHTML = "<div class='empty-state'><div class='empty-icon'>🔍</div>Aucune offre disponible pour le moment.</div>";
         return;
     }
-
     countEl.textContent = `${offers.length} offre${offers.length > 1 ? 's' : ''}`;
     countEl.style.display = 'inline-block';
 
     container.innerHTML = offers.map((j, i) => {
         const isApplied = statuses[j.job_url] === 'applied';
-        const dateStr = j.date_posted && j.date_posted !== 'nan' && j.date_posted !== 'None'
-            ? `📅 Publiée le ${j.date_posted}` : '';
+        const dateStr = j.date_posted && j.date_posted !== 'nan' && j.date_posted !== 'None' ? `📅 Publiée le ${j.date_posted}` : '';
         return `
         <div class="card-wrapper" id="wrapper-${i}">
             <div class="swipe-bg">🗑</div>
@@ -684,16 +728,13 @@ function initSwipe(index) {
 function initPullToRefresh() {
     let startY = 0, pulling = false;
     const indicator = document.getElementById('pull-indicator');
-
     document.addEventListener('touchstart', e => {
         if (window.scrollY === 0) { startY = e.touches[0].clientY; pulling = true; }
     }, { passive: true });
-
     document.addEventListener('touchmove', e => {
         if (!pulling) return;
         if (e.touches[0].clientY - startY > 60) indicator.style.display = 'block';
     }, { passive: true });
-
     document.addEventListener('touchend', async () => {
         if (!pulling) return;
         pulling = false;
@@ -727,6 +768,94 @@ window.dismissBanner = async () => {
     await loadStages();
 };
 
+// ===== ADMIN =====
+async function loadConfig() {
+    const errorEl = document.getElementById('api-error');
+    try {
+        const res = await fetch(API_URL + '/config');
+        if (!res.ok) throw new Error();
+        const config = await res.json();
+        keywords = config.mots_cles || [];
+        document.getElementById('delay-input').value = config.jobspy_delay || 6;
+        errorEl.style.display = 'none';
+        renderKeywords();
+    } catch {
+        errorEl.style.display = 'block';
+        document.getElementById('kw-list').innerHTML = '';
+        document.getElementById('kw-count').style.display = 'none';
+    }
+}
+
+function renderKeywords() {
+    const list = document.getElementById('kw-list');
+    const countEl = document.getElementById('kw-count');
+    countEl.textContent = keywords.length + ' mot' + (keywords.length > 1 ? 's-clés' : '-clé');
+    countEl.style.display = 'inline-block';
+    if (keywords.length === 0) {
+        list.innerHTML = "<p style='color:var(--text-sub);text-align:center;padding:20px 0;'>Aucun mot-clé configuré.</p>";
+        return;
+    }
+    list.innerHTML = keywords.map((kw, i) => `
+        <div class="kw-tag">
+            <span>${kw}</span>
+            <button class="kw-delete" data-i="${i}">✕</button>
+        </div>`).join('');
+    list.querySelectorAll('.kw-delete').forEach(btn => {
+        btn.addEventListener('click', () => {
+            keywords.splice(parseInt(btn.dataset.i), 1);
+            renderKeywords();
+        });
+    });
+}
+
+document.getElementById('kw-add-btn').addEventListener('click', () => {
+    const input = document.getElementById('kw-input');
+    const val = input.value.trim();
+    if (!val || keywords.includes(val)) { input.value = ''; return; }
+    keywords.push(val);
+    input.value = '';
+    renderKeywords();
+});
+
+document.getElementById('kw-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('kw-add-btn').click();
+});
+
+window.saveConfig = async () => {
+    const btn = document.getElementById('save-btn');
+    const status = document.getElementById('save-status');
+    btn.textContent = '⏳ Sauvegarde en cours...';
+    btn.disabled = true;
+    try {
+        const res = await fetch(API_URL + '/config', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                mots_cles: keywords,
+                jobspy_delay: parseInt(document.getElementById('delay-input').value) || 6
+            })
+        });
+        if (!res.ok) throw new Error();
+        status.style.color = 'var(--green)';
+        status.textContent = '✅ Config sauvegardée ! Active au prochain run du cron.';
+    } catch {
+        status.style.color = 'var(--red)';
+        status.textContent = '❌ Erreur — NAS injoignable.';
+    }
+    btn.textContent = '💾 Sauvegarder la configuration';
+    btn.disabled = false;
+    setTimeout(() => status.textContent = '', 5000);
+};
+
+// ===== FILTERS TOGGLE =====
+window.toggleFilters = () => {
+    const panel = document.getElementById('filter-panel');
+    const btn = document.getElementById('filter-toggle-btn');
+    const isOpen = panel.style.display !== 'none';
+    panel.style.display = isOpen ? 'none' : 'block';
+    btn.classList.toggle('active', !isOpen);
+};
+
 // ===== FIREWORKS =====
 window.launchFireworks = () => {
     const overlay = document.getElementById('fireworks-overlay');
@@ -735,10 +864,8 @@ window.launchFireworks = () => {
     const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-
     const particles = [];
     const colors = ['#e2001a','#34c759','#ff9f0a','#0a84ff','#ff375f','#ffd60a','#30d158','#ffffff'];
-
     for (let i = 0; i < 14; i++) {
         setTimeout(() => {
             const x = 80 + Math.random() * (canvas.width - 160);
@@ -746,45 +873,23 @@ window.launchFireworks = () => {
             for (let k = 0; k < 70; k++) {
                 const angle = (Math.PI * 2 / 70) * k;
                 const speed = 2 + Math.random() * 6;
-                particles.push({
-                    x, y,
-                    vx: Math.cos(angle) * speed,
-                    vy: Math.sin(angle) * speed,
-                    alpha: 1,
-                    color: colors[Math.floor(Math.random() * colors.length)],
-                    size: 2 + Math.random() * 4
-                });
+                particles.push({ x, y, vx: Math.cos(angle)*speed, vy: Math.sin(angle)*speed, alpha: 1, color: colors[Math.floor(Math.random()*colors.length)], size: 2+Math.random()*4 });
             }
         }, i * 250);
     }
-
     function animate() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         for (let i = particles.length - 1; i >= 0; i--) {
             const p = particles[i];
-            p.x += p.vx; p.y += p.vy;
-            p.vy += 0.07; p.alpha -= 0.011;
+            p.x += p.vx; p.y += p.vy; p.vy += 0.07; p.alpha -= 0.011;
             if (p.alpha <= 0) { particles.splice(i, 1); continue; }
-            ctx.save();
-            ctx.globalAlpha = p.alpha;
-            ctx.fillStyle = p.color;
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.restore();
+            ctx.save(); ctx.globalAlpha = p.alpha; ctx.fillStyle = p.color;
+            ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); ctx.fill(); ctx.restore();
         }
         fireworksAnimId = requestAnimationFrame(animate);
     }
     animate();
-    setTimeout(() => { cancelAnimationFrame(fireworksAnimId); }, 9000);
-};
-
-window.toggleFilters = () => {
-    const panel = document.getElementById('filter-panel');
-    const btn = document.getElementById('filter-toggle-btn');
-    const isOpen = panel.style.display !== 'none';
-    panel.style.display = isOpen ? 'none' : 'block';
-    btn.classList.toggle('active', !isOpen);
+    setTimeout(() => cancelAnimationFrame(fireworksAnimId), 9000);
 };
 
 window.closeFireworks = () => {
