@@ -265,6 +265,7 @@
     <!-- TAB OFFERS -->
     <div id="tab-offers-content">
         <div class="filter-bar" id="filter-bar"></div>
+        <div class="filter-bar" id="source-bar" style="padding-top:6px;"></div>
         <div class="container">
             <div class="section-header">
                 <span class="section-label">Mes offres de stage</span>
@@ -338,6 +339,7 @@ let currentUserEmail = null;
 let activeJobUrl = null;
 let activeJobIndex = null;
 let activeFilter = 'all';
+let activeSource = 'all';
 let lastSeenCount = 0;
 let fireworksAnimId = null;
 
@@ -437,15 +439,35 @@ function updateStats() {
 // ===== FILTER BAR =====
 function buildFilterBar() {
     const cities = [...new Set(allOffers.map(j => j.location).filter(Boolean))];
+    const sources = [...new Set(allOffers.map(j => j.site).filter(Boolean))];
     const bar = document.getElementById('filter-bar');
-    if (cities.length <= 1) { bar.style.display = 'none'; return; }
-    bar.innerHTML = ['all', ...cities].map(city => `
-        <div class="filter-chip ${city === activeFilter ? 'active' : ''}" data-city="${city}">
-            ${city === 'all' ? '🗺 Toutes' : '📍 ' + city}
+    const sourceBar = document.getElementById('source-bar');
+
+    // Filtre villes
+    if (cities.length <= 1) { bar.style.display = 'none'; }
+    else {
+        bar.innerHTML = ['all', ...cities].map(city => `
+            <div class="filter-chip ${city === activeFilter ? 'active' : ''}" data-city="${city}">
+                ${city === 'all' ? '🗺 Toutes' : '📍 ' + city}
+            </div>`).join('');
+        bar.querySelectorAll('.filter-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                activeFilter = chip.dataset.city;
+                buildFilterBar();
+                renderOffers();
+            });
+        });
+    }
+
+    // Filtre sources
+    const sourceLabels = { all: '🔍 Toutes', linkedin: 'LinkedIn', indeed: 'Indeed', jobteaser: 'JobTeaser' };
+    sourceBar.innerHTML = ['all', ...sources].map(src => `
+        <div class="filter-chip ${src === activeSource ? 'active' : ''}" data-source="${src}">
+            ${sourceLabels[src] || src}
         </div>`).join('');
-    bar.querySelectorAll('.filter-chip').forEach(chip => {
+    sourceBar.querySelectorAll('.filter-chip').forEach(chip => {
         chip.addEventListener('click', () => {
-            activeFilter = chip.dataset.city;
+            activeSource = chip.dataset.source;
             buildFilterBar();
             renderOffers();
         });
@@ -457,6 +479,7 @@ function getVisibleOffers() {
     return allOffers.filter(j => {
         if (statuses[j.job_url] === 'hidden') return false;
         if (activeFilter !== 'all' && j.location !== activeFilter) return false;
+        if (activeSource !== 'all' && j.site !== activeSource) return false;
         return true;
     });
 }
