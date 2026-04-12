@@ -251,14 +251,8 @@
             <h1>ENISE<span>STAGES</span></h1>
             <div id="user-welcome"></div>
         </div>
-        <div class="stats-bar">
-            <div class="stat-item"><div class="stat-dot applied"></div><span id="stat-applied">0 postulées</span></div>
-            <div class="stat-item"><div class="stat-dot hidden"></div><span id="stat-hidden">0 ignorées</span></div>
-        </div>
         <div class="tabs">
-            <button class="tab-btn active" id="tab-btn-offers" onclick="switchTab('offers')">
-                Offres <span class="tab-badge" id="badge-offers">0</span>
-            </button>
+            <button class="tab-btn active" id="tab-btn-offers" onclick="switchTab('offers')">Offres</button>
             <button class="tab-btn" id="tab-btn-applied" onclick="switchTab('applied')">
                 Postulées <span class="tab-badge green" id="badge-applied" style="display:none">0</span>
             </button>
@@ -433,18 +427,12 @@ window.switchTab = (tab) => {
 
 // ===== STATS =====
 function updateStats() {
-    const visible = allOffers.filter(j => statuses[j.job_url] !== 'hidden').length;
     const applied = Object.values(statuses).filter(v => v === 'applied').length;
-    const hidden = Object.values(statuses).filter(v => v === 'hidden').length;
-
-    document.getElementById('stat-total').textContent = `${visible} offre${visible > 1 ? 's' : ''}`;
-    document.getElementById('stat-applied').textContent = `${applied} postulée${applied > 1 ? 's' : ''}`;
-    document.getElementById('stat-hidden').textContent = `${hidden} ignorée${hidden > 1 ? 's' : ''}`;
-    document.getElementById('badge-offers').textContent = visible;
 
     const ab = document.getElementById('badge-applied');
     if (applied > 0) { ab.textContent = applied; ab.style.display = 'inline-flex'; }
     else ab.style.display = 'none';
+}
 }
 
 // ===== FILTER BAR =====
@@ -453,12 +441,17 @@ function buildFilterBar() {
     const bar = document.getElementById('filter-bar');
     if (cities.length <= 1) { bar.style.display = 'none'; return; }
     bar.innerHTML = ['all', ...cities].map(city => `
-        <div class="filter-chip ${city === activeFilter ? 'active' : ''}" onclick="setFilter('${city}')">
+        <div class="filter-chip ${city === activeFilter ? 'active' : ''}" data-city="${city}">
             ${city === 'all' ? '🗺 Toutes' : '📍 ' + city}
         </div>`).join('');
+    bar.querySelectorAll('.filter-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+            activeFilter = chip.dataset.city;
+            buildFilterBar();
+            renderOffers();
+        });
+    });
 }
-
-window.setFilter = (city) => { activeFilter = city; buildFilterBar(); renderOffers(); };
 
 // ===== RENDER OFFERS =====
 function getVisibleOffers() {
