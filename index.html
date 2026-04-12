@@ -23,17 +23,6 @@
             overscroll-behavior-y: contain;
         }
 
-        /* DESKTOP LAYOUT */
-        @media (min-width: 600px) {
-            #list-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
-            #list-container .card-wrapper { margin-bottom: 0; }
-            #applied-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
-            .container { max-width: 1400px; margin: 0 auto; }
-            .stage-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.1); transform: translateY(-2px); }
-            .stage-card { transition: all 0.2s ease; }
-        }
-        }
-
         /* AUTH */
         #auth-screen {
             display: flex; align-items: center; justify-content: center;
@@ -289,6 +278,7 @@
         </div>
         <div class="new-banner" id="new-banner" onclick="dismissBanner()">✨ Nouvelles offres disponibles — Tap pour recharger</div>
     </header>
+
     <div class="pull-indicator" id="pull-indicator">⟳ Actualisation...</div>
 
     <!-- TAB OFFERS -->
@@ -323,7 +313,6 @@
     </div>
 
     <div class="logout-link" onclick="logout()">Se déconnecter</div>
-
 </div>
 
 <!-- MODAL -->
@@ -467,8 +456,10 @@ window.switchTab = (tab) => {
 // ===== STATS =====
 function updateStats() {
     const applied = Object.values(statuses).filter(v => v === 'applied').length;
+
     const ab = document.getElementById('badge-applied');
-    if (ab) { if (applied > 0) { ab.textContent = applied; ab.style.display = 'inline-flex'; } else ab.style.display = 'none'; }
+    if (applied > 0) { ab.textContent = applied; ab.style.display = 'inline-flex'; }
+    else ab.style.display = 'none';
 }
 
 // ===== FILTER BAR =====
