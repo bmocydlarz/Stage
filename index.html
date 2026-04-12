@@ -227,6 +227,25 @@
             font-weight: 700; font-size: 1rem; cursor: pointer;
         }
         @keyframes popIn { from { transform: scale(0.4); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        /* FILTER TOGGLE */
+        #filter-toggle-btn {
+            display: flex; align-items: center; gap: 6px;
+            padding: 7px 14px; border-radius: 20px;
+            border: 1.5px solid #d2d2d7; background: white;
+            font-size: 0.82rem; font-weight: 600; color: var(--text-main);
+            cursor: pointer; transition: all 0.2s;
+        }
+        #filter-toggle-btn.active {
+            background: var(--enise-red); color: white; border-color: var(--enise-red);
+        }
+        #filter-panel {
+            animation: fadeDown 0.2s ease;
+        }
+        @keyframes fadeDown {
+            from { opacity: 0; transform: translateY(-6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body>
@@ -264,8 +283,15 @@
 
     <!-- TAB OFFERS -->
     <div id="tab-offers-content">
-        <div class="filter-bar" id="filter-bar"></div>
-        <div class="filter-bar" id="source-bar" style="padding-top:6px;"></div>
+        <div id="filter-toggle-bar" style="padding:8px 20px 0;">
+            <button id="filter-toggle-btn" onclick="toggleFilters()">
+                <span id="filter-icon">⚙️</span> Filtres <span id="filter-active-dot" style="display:none;width:7px;height:7px;background:var(--enise-red);border-radius:50%;display:none;margin-left:4px;vertical-align:middle;"></span>
+            </button>
+        </div>
+        <div id="filter-panel" style="display:none;">
+            <div class="filter-bar" id="filter-bar"></div>
+            <div class="filter-bar" id="source-bar" style="padding-top:6px;padding-bottom:10px;"></div>
+        </div>
         <div class="container">
             <div class="section-header">
                 <span class="section-label">Mes offres de stage</span>
@@ -751,6 +777,14 @@ window.launchFireworks = () => {
     }
     animate();
     setTimeout(() => { cancelAnimationFrame(fireworksAnimId); }, 9000);
+};
+
+window.toggleFilters = () => {
+    const panel = document.getElementById('filter-panel');
+    const btn = document.getElementById('filter-toggle-btn');
+    const isOpen = panel.style.display !== 'none';
+    panel.style.display = isOpen ? 'none' : 'block';
+    btn.classList.toggle('active', !isOpen);
 };
 
 window.closeFireworks = () => {
