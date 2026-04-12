@@ -24,51 +24,14 @@
         }
 
         /* DESKTOP LAYOUT */
-        @media (min-width: 768px) {
-            #app { display: grid; grid-template-columns: 280px 1fr; grid-template-rows: auto 1fr; min-height: 100vh; }
-            header { grid-column: 1 / -1; position: sticky; top: 0; }
-            #sidebar { display: block; grid-column: 1; border-right: 0.5px solid rgba(0,0,0,0.08); background: white; padding: 20px 0; min-height: calc(100vh - 130px); }
-            #main-content { grid-column: 2; }
-            #tab-offers-content, #tab-applied-content { display: block !important; }
-            .tabs { display: none; }
-            .container { max-width: 680px; }
-            .stage-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.1); transform: translateY(-2px); transition: all 0.2s ease; }
-            .btn-apple:hover { opacity: 0.88; }
-            .modal-sheet { border-radius: 16px; margin-bottom: 40px; max-width: 480px; }
-
-            /* Sidebar nav */
-            .sidebar-nav-item {
-                display: flex; align-items: center; gap: 12px;
-                padding: 12px 24px; font-size: 0.95rem; font-weight: 500;
-                cursor: pointer; border-radius: 12px; margin: 2px 12px;
-                transition: background 0.15s; color: var(--text-main);
-            }
-            .sidebar-nav-item:hover { background: var(--apple-bg); }
-            .sidebar-nav-item.active { background: rgba(226,0,26,0.08); color: var(--enise-red); font-weight: 700; }
-            .sidebar-nav-item .nav-icon { font-size: 1.2rem; width: 28px; text-align: center; }
-            .sidebar-badge {
-                margin-left: auto; background: var(--green); color: white;
-                font-size: 0.7rem; font-weight: 700;
-                padding: 2px 7px; border-radius: 10px;
-            }
-            .sidebar-section-title {
-                font-size: 0.7rem; font-weight: 700; color: var(--text-sub);
-                text-transform: uppercase; letter-spacing: 0.05em;
-                padding: 16px 24px 6px;
-            }
-            .sidebar-divider { height: 0.5px; background: rgba(0,0,0,0.07); margin: 10px 12px; }
-            .logout-link { padding: 12px 24px; margin: 0; text-align: left; }
-
-            /* Two-column offers grid on wide screens */
-            #list-container { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        @media (min-width: 600px) {
+            #list-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
             #list-container .card-wrapper { margin-bottom: 0; }
-
-            /* Applied section stays below offers on desktop */
-            #tab-applied-content { border-top: 0.5px solid rgba(0,0,0,0.08); margin-top: 10px; }
+            #applied-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+            .container { max-width: 1400px; margin: 0 auto; }
+            .stage-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.1); transform: translateY(-2px); }
+            .stage-card { transition: all 0.2s ease; }
         }
-
-        @media (max-width: 767px) {
-            #sidebar { display: none; }
         }
 
         /* AUTH */
@@ -326,23 +289,6 @@
         </div>
         <div class="new-banner" id="new-banner" onclick="dismissBanner()">✨ Nouvelles offres disponibles — Tap pour recharger</div>
     </header>
-
-    <div id="sidebar">
-        <div class="sidebar-section-title">Navigation</div>
-        <div class="sidebar-nav-item active" id="snav-offers" onclick="switchTab('offers')">
-            <span class="nav-icon">🔍</span> Offres de stage
-            <span class="sidebar-badge" id="snav-badge-offers" style="background:var(--enise-red)">0</span>
-        </div>
-        <div class="sidebar-nav-item" id="snav-applied" onclick="switchTab('applied')">
-            <span class="nav-icon">📝</span> Mes candidatures
-            <span class="sidebar-badge" id="snav-badge-applied" style="display:none">0</span>
-        </div>
-        <div class="sidebar-divider"></div>
-        <div class="sidebar-section-title">Compte</div>
-        <div class="logout-link" onclick="logout()">🚪 Se déconnecter</div>
-    </div>
-
-    <div id="main-content">
     <div class="pull-indicator" id="pull-indicator">⟳ Actualisation...</div>
 
     <!-- TAB OFFERS -->
@@ -376,8 +322,8 @@
         </div>
     </div>
 
-    <div class="logout-link" onclick="logout()" id="mobile-logout">Se déconnecter</div>
-    </div><!-- end main-content -->
+    <div class="logout-link" onclick="logout()">Se déconnecter</div>
+
 </div>
 
 <!-- MODAL -->
@@ -512,38 +458,17 @@ async function loadStages() {
 
 // ===== TABS =====
 window.switchTab = (tab) => {
-    const isDesktop = window.innerWidth >= 768;
-    if (!isDesktop) {
-        document.getElementById('tab-offers-content').style.display = tab === 'offers' ? 'block' : 'none';
-        document.getElementById('tab-applied-content').style.display = tab === 'applied' ? 'block' : 'none';
-    }
+    document.getElementById('tab-offers-content').style.display = tab === 'offers' ? 'block' : 'none';
+    document.getElementById('tab-applied-content').style.display = tab === 'applied' ? 'block' : 'none';
     document.getElementById('tab-btn-offers').classList.toggle('active', tab === 'offers');
     document.getElementById('tab-btn-applied').classList.toggle('active', tab === 'applied');
-    // Sidebar
-    const sno = document.getElementById('snav-offers');
-    const sna = document.getElementById('snav-applied');
-    if (sno) sno.classList.toggle('active', tab === 'offers');
-    if (sna) sna.classList.toggle('active', tab === 'applied');
-    // On desktop scroll to section
-    if (isDesktop) {
-        const target = document.getElementById(tab === 'offers' ? 'tab-offers-content' : 'tab-applied-content');
-        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
 };
 
 // ===== STATS =====
 function updateStats() {
-    const visible = allOffers.filter(j => statuses[j.job_url] !== 'hidden').length;
     const applied = Object.values(statuses).filter(v => v === 'applied').length;
-
     const ab = document.getElementById('badge-applied');
     if (ab) { if (applied > 0) { ab.textContent = applied; ab.style.display = 'inline-flex'; } else ab.style.display = 'none'; }
-
-    // Sidebar badges
-    const sbo = document.getElementById('snav-badge-offers');
-    const sba = document.getElementById('snav-badge-applied');
-    if (sbo) sbo.textContent = visible;
-    if (sba) { if (applied > 0) { sba.textContent = applied; sba.style.display = 'inline-block'; } else sba.style.display = 'none'; }
 }
 
 // ===== FILTER BAR =====
