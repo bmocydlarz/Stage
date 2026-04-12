@@ -11,281 +11,267 @@
             --card-bg: #ffffff;
             --text-main: #1d1d1f;
             --text-sub: #86868b;
+            --green: #34c759;
+            --red: #ff3b30;
         }
-
+        * { box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
             background-color: var(--apple-bg);
-            margin: 0;
-            color: var(--text-main);
+            margin: 0; color: var(--text-main);
             -webkit-font-smoothing: antialiased;
+            overscroll-behavior-y: contain;
         }
 
-        /* --- AUTH SCREEN --- */
+        /* AUTH */
         #auth-screen {
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             min-height: 100vh;
             background: radial-gradient(circle at top right, #fff, #f5f5f7);
         }
-
-        .auth-card {
-            width: 100%;
-            max-width: 360px;
-            padding: 40px 25px;
-            text-align: center;
-        }
-
+        .auth-card { width: 100%; max-width: 360px; padding: 40px 25px; text-align: center; }
         .auth-logo {
-            width: 70px;
-            height: 70px;
-            background: var(--enise-red);
-            border-radius: 18px;
-            margin: 0 auto 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 2rem;
-            font-weight: bold;
-            box-shadow: 0 10px 20px rgba(226, 0, 26, 0.2);
+            width: 70px; height: 70px; background: var(--enise-red);
+            border-radius: 18px; margin: 0 auto 20px;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 2rem; font-weight: bold;
+            box-shadow: 0 10px 20px rgba(226,0,26,0.2);
         }
-
-        .auth-card h1 {
-            font-size: 1.6rem;
-            font-weight: 700;
-            margin: 0 0 8px 0;
-            letter-spacing: -0.5px;
-        }
-
-        .auth-card p {
-            color: var(--text-sub);
-            font-size: 0.95rem;
-            margin-bottom: 30px;
-        }
-
-        .input-group { position: relative; margin-bottom: 12px; }
-
+        .auth-card h1 { font-size: 1.6rem; font-weight: 700; margin: 0 0 8px; letter-spacing: -0.5px; }
+        .auth-card p { color: var(--text-sub); font-size: 0.95rem; margin-bottom: 30px; }
+        .input-group { margin-bottom: 12px; }
         input {
-            width: 100%;
-            padding: 16px;
-            border-radius: 12px;
-            border: 1px solid #d2d2d7;
-            background: rgba(255, 255, 255, 0.8);
-            font-size: 1rem;
-            box-sizing: border-box;
-            outline: none;
-            transition: all 0.2s ease;
+            width: 100%; padding: 16px; border-radius: 12px;
+            border: 1px solid #d2d2d7; background: rgba(255,255,255,0.8);
+            font-size: 1rem; outline: none; transition: all 0.2s ease;
         }
-
-        input:focus {
-            border-color: var(--enise-red);
-            background: #fff;
-            box-shadow: 0 0 0 4px rgba(226, 0, 26, 0.1);
-        }
-
+        input:focus { border-color: var(--enise-red); background: #fff; box-shadow: 0 0 0 4px rgba(226,0,26,0.1); }
         .btn-login {
-            width: 100%;
-            padding: 16px;
-            background: var(--enise-red);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 1rem;
-            margin-top: 20px;
-            cursor: pointer;
-            transition: transform 0.1s ease;
+            width: 100%; padding: 16px; background: var(--enise-red);
+            color: white; border: none; border-radius: 12px;
+            font-weight: 600; font-size: 1rem; margin-top: 20px;
+            cursor: pointer; transition: transform 0.1s ease;
         }
-
         .btn-login:active { transform: scale(0.97); }
 
-        /* --- APP CONTENT --- */
+        /* HEADER */
         header {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            background: rgba(255, 255, 255, 0.75);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            padding: 15px 20px;
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(255,255,255,0.88);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             border-bottom: 0.5px solid rgba(0,0,0,0.1);
-            text-align: center;
         }
-
+        .header-top { padding: 15px 20px 6px; text-align: center; }
         header h1 { font-size: 1.1rem; font-weight: 700; margin: 0; }
         header span { color: var(--enise-red); }
         #user-welcome { font-size: 0.85rem; color: var(--text-sub); margin-top: 4px; }
 
-        .container { padding: 15px 20px; max-width: 500px; margin: 0 auto; }
+        /* STATS */
+        .stats-bar {
+            display: flex; justify-content: center; gap: 18px;
+            padding: 6px 20px 10px; font-size: 0.78rem; color: var(--text-sub);
+        }
+        .stat-item { display: flex; align-items: center; gap: 5px; }
+        .stat-dot { width: 8px; height: 8px; border-radius: 50%; }
+        .stat-dot.all { background: var(--enise-red); }
+        .stat-dot.applied { background: var(--green); }
+        .stat-dot.hidden { background: #aeaeb2; }
 
+        /* TABS */
+        .tabs { display: flex; border-bottom: 0.5px solid rgba(0,0,0,0.1); padding: 0 20px; }
+        .tab-btn {
+            flex: 1; padding: 10px 5px; border: none; background: none;
+            font-size: 0.88rem; font-weight: 600; color: var(--text-sub);
+            cursor: pointer; position: relative; transition: color 0.2s;
+        }
+        .tab-btn.active { color: var(--enise-red); }
+        .tab-btn.active::after {
+            content: ''; position: absolute; bottom: 0; left: 15%; right: 15%;
+            height: 2px; background: var(--enise-red); border-radius: 2px;
+        }
+        .tab-badge {
+            display: inline-flex; align-items: center; justify-content: center;
+            background: var(--enise-red); color: white;
+            font-size: 0.65rem; font-weight: 700;
+            width: 16px; height: 16px; border-radius: 50%; margin-left: 5px;
+        }
+        .tab-badge.green { background: var(--green); }
+
+        /* BANNER */
+        .new-banner {
+            background: linear-gradient(135deg, #e2001a, #ff6b35);
+            color: white; text-align: center;
+            padding: 10px 20px; font-size: 0.85rem; font-weight: 600;
+            display: none; cursor: pointer;
+        }
+        .new-banner.visible { display: block; }
+
+        /* PULL INDICATOR */
+        .pull-indicator {
+            text-align: center; padding: 10px;
+            font-size: 0.8rem; color: var(--text-sub); display: none;
+        }
+
+        /* FILTER BAR */
+        .filter-bar {
+            padding: 10px 20px 0;
+            display: flex; gap: 8px; overflow-x: auto;
+            scrollbar-width: none; -webkit-overflow-scrolling: touch;
+        }
+        .filter-bar::-webkit-scrollbar { display: none; }
+        .filter-chip {
+            white-space: nowrap; padding: 6px 14px;
+            border-radius: 20px; border: 1.5px solid #d2d2d7;
+            background: white; font-size: 0.8rem; font-weight: 500;
+            cursor: pointer; transition: all 0.2s; flex-shrink: 0;
+        }
+        .filter-chip.active { background: var(--enise-red); color: white; border-color: var(--enise-red); }
+
+        /* CONTAINER */
+        .container { padding: 10px 20px 20px; max-width: 500px; margin: 0 auto; }
         .section-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin: 15px 0 10px 5px;
+            display: flex; align-items: center; justify-content: space-between;
+            margin: 12px 0 10px 5px;
         }
-
-        .section-label {
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: var(--text-sub);
-            text-transform: uppercase;
-        }
-
+        .section-label { font-size: 0.8rem; font-weight: 600; color: var(--text-sub); text-transform: uppercase; }
         .offer-count {
-            background: var(--enise-red);
-            color: white;
-            font-size: 0.75rem;
-            font-weight: 700;
-            padding: 3px 9px;
-            border-radius: 20px;
+            background: var(--enise-red); color: white;
+            font-size: 0.75rem; font-weight: 700; padding: 3px 9px; border-radius: 20px;
         }
 
+        /* CARDS */
+        .card-wrapper { position: relative; overflow: hidden; border-radius: 18px; margin-bottom: 12px; }
+        .swipe-bg {
+            position: absolute; inset: 0; background: var(--red);
+            display: flex; align-items: center; justify-content: flex-end;
+            padding-right: 25px; color: white; font-size: 1.4rem; border-radius: 18px;
+        }
         .stage-card {
-            background: var(--card-bg);
-            border-radius: 18px;
-            padding: 18px;
-            margin-bottom: 12px;
+            background: var(--card-bg); border-radius: 18px; padding: 18px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.04);
             border: 0.5px solid rgba(0,0,0,0.05);
-            transition: opacity 0.3s ease;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            position: relative; z-index: 1; touch-action: pan-y; will-change: transform;
         }
-
-        .stage-card.applied { opacity: 0.55; }
-
+        .stage-card.applied-card { opacity: 0.6; }
         .job-title { font-size: 1.05rem; font-weight: 700; color: #000; margin-bottom: 4px; line-height: 1.3; }
-        .company { color: var(--enise-red); font-weight: 600; font-size: 0.95rem; margin-bottom: 8px; }
-        .details { font-size: 0.8rem; color: var(--text-sub); margin-bottom: 15px; }
-
+        .company { color: var(--enise-red); font-weight: 600; font-size: 0.95rem; margin-bottom: 4px; }
+        .details { font-size: 0.8rem; color: var(--text-sub); margin-bottom: 6px; }
+        .date-tag {
+            display: inline-block; font-size: 0.72rem; color: var(--text-sub);
+            background: #f2f2f7; padding: 2px 8px; border-radius: 6px; margin-bottom: 14px;
+        }
         .btn-apple {
-            display: block;
-            background-color: var(--enise-red);
-            color: white;
-            text-align: center;
-            padding: 12px;
-            border-radius: 12px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.9rem;
-            cursor: pointer;
-            border: none;
-            width: 100%;
-            box-sizing: border-box;
-            transition: background 0.2s;
+            display: block; background-color: var(--enise-red); color: white;
+            text-align: center; padding: 12px; border-radius: 12px;
+            text-decoration: none; font-weight: 600; font-size: 0.9rem;
+            cursor: pointer; border: none; width: 100%; transition: background 0.2s;
         }
-
-        .btn-apple.applied-btn {
-            background-color: #aeaeb2;
-            cursor: default;
-        }
-
+        .btn-apple.applied-btn { background-color: #aeaeb2; cursor: default; }
+        .btn-apple.green-btn { background-color: var(--green); }
+        .btn-apple.red-btn { background-color: var(--red); }
+        .action-row { display: flex; gap: 8px; margin-top: 10px; }
+        .action-row .btn-apple { flex: 1; padding: 10px; font-size: 0.82rem; }
         .logout-link {
-            display: block;
-            margin: 40px auto;
-            color: var(--text-sub);
-            font-size: 0.8rem;
-            text-align: center;
-            cursor: pointer;
-            text-decoration: underline;
+            display: block; margin: 40px auto; color: var(--text-sub);
+            font-size: 0.8rem; text-align: center; cursor: pointer; text-decoration: underline;
         }
+        .empty-state { text-align: center; color: var(--text-sub); margin-top: 40px; padding: 20px; }
+        .empty-state .empty-icon { font-size: 2.5rem; margin-bottom: 10px; }
 
-        /* --- MODAL --- */
+        /* MODAL */
         .modal-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.4);
-            backdrop-filter: blur(6px);
-            z-index: 200;
-            align-items: flex-end;
-            justify-content: center;
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.4); backdrop-filter: blur(6px);
+            z-index: 200; align-items: flex-end; justify-content: center;
         }
-
         .modal-overlay.open { display: flex; }
-
         .modal-sheet {
-            background: #fff;
-            border-radius: 24px 24px 0 0;
-            padding: 30px 20px 40px;
-            width: 100%;
-            max-width: 500px;
-            animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            background: #fff; border-radius: 24px 24px 0 0;
+            padding: 30px 20px 40px; width: 100%; max-width: 500px;
+            animation: slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1);
         }
-
-        @keyframes slideUp {
-            from { transform: translateY(100%); }
-            to { transform: translateY(0); }
-        }
-
-        .modal-handle {
-            width: 40px;
-            height: 4px;
-            background: #e0e0e0;
-            border-radius: 4px;
-            margin: 0 auto 20px;
-        }
-
-        .modal-title {
-            font-size: 1.15rem;
-            font-weight: 700;
-            margin-bottom: 4px;
-            text-align: center;
-        }
-
-        .modal-company {
-            font-size: 0.9rem;
-            color: var(--text-sub);
-            text-align: center;
-            margin-bottom: 25px;
-        }
-
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .modal-handle { width: 40px; height: 4px; background: #e0e0e0; border-radius: 4px; margin: 0 auto 20px; }
+        .modal-title { font-size: 1.15rem; font-weight: 700; margin-bottom: 4px; text-align: center; }
+        .modal-company { font-size: 0.9rem; color: var(--text-sub); text-align: center; margin-bottom: 25px; }
         .modal-actions { display: flex; flex-direction: column; gap: 10px; }
-
         .modal-btn {
-            padding: 15px;
-            border-radius: 14px;
-            border: none;
-            font-size: 0.95rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.1s ease;
+            padding: 15px; border-radius: 14px; border: none;
+            font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: transform 0.1s ease;
         }
-
         .modal-btn:active { transform: scale(0.97); }
-
-        .modal-btn.green { background: #34c759; color: white; }
-        .modal-btn.red { background: #ff3b30; color: white; }
+        .modal-btn.green { background: var(--green); color: white; }
+        .modal-btn.red { background: var(--red); color: white; }
         .modal-btn.gray { background: #f2f2f7; color: var(--text-main); }
+
+        /* FIREWORKS */
+        #fireworks-overlay {
+            display: none; position: fixed; inset: 0; z-index: 500;
+            background: rgba(0,0,0,0.88); flex-direction: column;
+            align-items: center; justify-content: center;
+        }
+        #fireworks-overlay.show { display: flex; }
+        #fireworks-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+        .congrats-text {
+            position: relative; z-index: 10; text-align: center; color: white;
+            animation: popIn 0.6s cubic-bezier(0.34,1.56,0.64,1);
+            padding: 20px;
+        }
+        .congrats-text .emoji { font-size: 4rem; margin-bottom: 16px; display: block; }
+        .congrats-text h2 { font-size: 1.9rem; font-weight: 800; margin: 0 0 10px; letter-spacing: -0.5px; }
+        .congrats-text p { font-size: 1rem; color: rgba(255,255,255,0.8); margin: 0 0 30px; }
+        .congrats-close {
+            background: white; color: #000; border: none;
+            padding: 14px 32px; border-radius: 14px;
+            font-weight: 700; font-size: 1rem; cursor: pointer;
+        }
+        @keyframes popIn { from { transform: scale(0.4); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     </style>
 </head>
 <body>
 
-    <div id="auth-screen">
-        <div class="auth-card">
-            <div class="auth-logo">E</div>
-            <h1>ENISE Stages</h1>
-            <p>Connectez-vous pour voir vos offres</p>
-            <div class="input-group">
-                <input type="email" id="email" placeholder="prenom.nom@enise.fr">
-            </div>
-            <div class="input-group">
-                <input type="password" id="pass" placeholder="Mot de passe">
-            </div>
-            <button class="btn-login" id="btn-auth">Se connecter</button>
-            <div style="margin-top:20px; font-size:0.85rem; color:var(--text-sub)">
-                Nouveau ? Saisissez vos identifiants pour créer un compte.
-            </div>
-        </div>
+<!-- AUTH -->
+<div id="auth-screen">
+    <div class="auth-card">
+        <div class="auth-logo">E</div>
+        <h1>ENISE Stages</h1>
+        <p>Connectez-vous pour voir vos offres</p>
+        <div class="input-group"><input type="email" id="email" placeholder="prenom.nom@enise.fr"></div>
+        <div class="input-group"><input type="password" id="pass" placeholder="Mot de passe"></div>
+        <button class="btn-login" id="btn-auth">Se connecter</button>
+        <div style="margin-top:20px;font-size:0.85rem;color:var(--text-sub)">Nouveau ? Saisissez vos identifiants pour créer un compte.</div>
     </div>
+</div>
 
-    <div id="app" style="display:none;">
-        <header>
+<!-- APP -->
+<div id="app" style="display:none;">
+    <header>
+        <div class="header-top">
             <h1>ENISE<span>STAGES</span></h1>
             <div id="user-welcome"></div>
-        </header>
+        </div>
+        <div class="stats-bar">
+            <div class="stat-item"><div class="stat-dot all"></div><span id="stat-total">0 offres</span></div>
+            <div class="stat-item"><div class="stat-dot applied"></div><span id="stat-applied">0 postulées</span></div>
+            <div class="stat-item"><div class="stat-dot hidden"></div><span id="stat-hidden">0 ignorées</span></div>
+        </div>
+        <div class="tabs">
+            <button class="tab-btn active" id="tab-btn-offers" onclick="switchTab('offers')">
+                Offres <span class="tab-badge" id="badge-offers">0</span>
+            </button>
+            <button class="tab-btn" id="tab-btn-applied" onclick="switchTab('applied')">
+                Postulées <span class="tab-badge green" id="badge-applied" style="display:none">0</span>
+            </button>
+        </div>
+        <div class="new-banner" id="new-banner" onclick="dismissBanner()">✨ Nouvelles offres disponibles — Tap pour recharger</div>
+    </header>
 
+    <div class="pull-indicator" id="pull-indicator">⟳ Actualisation...</div>
+
+    <!-- TAB OFFERS -->
+    <div id="tab-offers-content">
+        <div class="filter-bar" id="filter-bar"></div>
         <div class="container">
             <div class="section-header">
                 <span class="section-label">Mes offres de stage</span>
@@ -293,220 +279,472 @@
             </div>
             <div id="list-container"></div>
         </div>
-
-        <div class="logout-link" onclick="logout()">Se déconnecter</div>
     </div>
 
-    <!-- MODAL -->
-    <div class="modal-overlay" id="modal-overlay">
-        <div class="modal-sheet">
-            <div class="modal-handle"></div>
-            <div class="modal-title" id="modal-title"></div>
-            <div class="modal-company" id="modal-company"></div>
-            <div class="modal-actions">
-                <button class="modal-btn green" id="modal-applied">✅ J'ai postulé</button>
-                <button class="modal-btn gray" id="modal-later">🕐 Je postule plus tard</button>
-                <button class="modal-btn red" id="modal-nope">❌ Ça ne m'intéresse pas</button>
+    <!-- TAB APPLIED -->
+    <div id="tab-applied-content" style="display:none;">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-label">Mes candidatures</span>
+                <span class="offer-count" id="applied-count" style="display:none;background:var(--green)"></span>
             </div>
+            <div id="applied-container"></div>
         </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    <div class="logout-link" onclick="logout()">Se déconnecter</div>
+</div>
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyAkOE-XWdAlgT2ihoPkBUtR2lmvE78JfMA",
-            authDomain: "enisebet.firebaseapp.com",
-            projectId: "enisebet",
-            storageBucket: "enisebet.firebasestorage.app",
-            messagingSenderId: "389153667220",
-            appId: "1:389153667220:web:0c3530e05911c0da1e5c81"
-        };
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay">
+    <div class="modal-sheet">
+        <div class="modal-handle"></div>
+        <div class="modal-title" id="modal-title"></div>
+        <div class="modal-company" id="modal-company"></div>
+        <div class="modal-actions">
+            <button class="modal-btn green" id="modal-applied-btn">✅ J'ai postulé</button>
+            <button class="modal-btn gray" id="modal-later-btn">🕐 Je postule plus tard</button>
+            <button class="modal-btn red" id="modal-nope-btn">❌ Ça ne m'intéresse pas</button>
+        </div>
+    </div>
+</div>
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+<!-- FIREWORKS -->
+<div id="fireworks-overlay">
+    <canvas id="fireworks-canvas"></canvas>
+    <div class="congrats-text">
+        <span class="emoji">🎓</span>
+        <h2>Félicitations !</h2>
+        <p>Ton stage est confirmé.<br>Bonne chance pour la suite !</p>
+        <button class="congrats-close" onclick="closeFireworks()">Merci ! 🎉</button>
+    </div>
+</div>
 
-        // État local
-        let currentOffers = [];
-        let statuses = {}; // { job_url: 'applied' | 'hidden' | 'later' }
-        let currentUserEmail = null;
-        let activeJobUrl = null;
-        let activeJobIndex = null;
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // --- AUTH ---
-        document.getElementById('btn-auth').onclick = async () => {
-            const email = document.getElementById('email').value.toLowerCase().trim();
-            const pass = document.getElementById('pass').value;
-            if (!email.endsWith("@enise.fr")) return alert("Utilise ton mail @enise.fr");
-            if (pass.length < 6) return alert("Le mot de passe doit faire 6 caractères min.");
-            try {
-                await signInWithEmailAndPassword(auth, email, pass);
-            } catch (e) {
-                try {
-                    await createUserWithEmailAndPassword(auth, email, pass);
-                } catch (err) { alert(err.message); }
-            }
-        };
+const firebaseConfig = {
+    apiKey: "AIzaSyAkOE-XWdAlgT2ihoPkBUtR2lmvE78JfMA",
+    authDomain: "enisebet.firebaseapp.com",
+    projectId: "enisebet",
+    storageBucket: "enisebet.firebasestorage.app",
+    messagingSenderId: "389153667220",
+    appId: "1:389153667220:web:0c3530e05911c0da1e5c81"
+};
 
-        window.logout = () => signOut(auth).then(() => location.reload());
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                document.getElementById('auth-screen').style.display = 'none';
-                document.getElementById('app').style.display = 'block';
-                currentUserEmail = user.email.toLowerCase();
+let allOffers = [];
+let statuses = {};
+let appliedDates = {};
+let currentUserEmail = null;
+let activeJobUrl = null;
+let activeJobIndex = null;
+let activeFilter = 'all';
+let lastSeenCount = 0;
+let fireworksAnimId = null;
 
-                const parts = user.email.split('@')[0].split('.');
-                const firstName = parts[0].charAt(0).toUpperCase() + parts[0].slice(1);
-                const lastName = parts.length > 1 ? parts[1].charAt(0).toUpperCase() + parts[1].slice(1) : "";
-                document.getElementById('user-welcome').innerHTML = `Bonjour <b>${firstName} ${lastName}</b> 👋`;
+// ===== AUTH =====
+document.getElementById('btn-auth').onclick = async () => {
+    const email = document.getElementById('email').value.toLowerCase().trim();
+    const pass = document.getElementById('pass').value;
+    if (!email.endsWith("@enise.fr")) return alert("Utilise ton mail @enise.fr");
+    if (pass.length < 6) return alert("Le mot de passe doit faire 6 caractères min.");
+    try {
+        await signInWithEmailAndPassword(auth, email, pass);
+    } catch {
+        try { await createUserWithEmailAndPassword(auth, email, pass); }
+        catch (err) { alert(err.message); }
+    }
+};
 
-                await loadStatuses();
-                await loadStages(user.email);
-            }
-        });
+window.logout = () => signOut(auth).then(() => location.reload());
 
-        // --- CHARGEMENT STATUTS DEPUIS FIREBASE ---
-        async function loadStatuses() {
-            try {
-                const snap = await getDoc(doc(db, "statuses", currentUserEmail));
-                if (snap.exists()) statuses = snap.data().statuses || {};
-            } catch (e) { statuses = {}; }
+onAuthStateChanged(auth, async (user) => {
+    if (user) {
+        document.getElementById('auth-screen').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+        currentUserEmail = user.email.toLowerCase();
+        const parts = user.email.split('@')[0].split('.');
+        const firstName = parts[0].charAt(0).toUpperCase() + parts[0].slice(1);
+        const lastName = parts.length > 1 ? parts[1].charAt(0).toUpperCase() + parts[1].slice(1) : "";
+        document.getElementById('user-welcome').innerHTML = `Bonjour <b>${firstName} ${lastName}</b> 👋`;
+        await loadStatuses();
+        await loadStages();
+        initPullToRefresh();
+        startPolling();
+    }
+});
+
+// ===== FIREBASE =====
+async function loadStatuses() {
+    try {
+        const snap = await getDoc(doc(db, "statuses", currentUserEmail));
+        if (snap.exists()) {
+            statuses = snap.data().statuses || {};
+            appliedDates = snap.data().appliedDates || {};
+            lastSeenCount = snap.data().lastSeenCount || 0;
         }
+    } catch { statuses = {}; }
+}
 
-        // --- SAUVEGARDE STATUTS DANS FIREBASE ---
-        async function saveStatuses() {
-            try {
-                await setDoc(doc(db, "statuses", currentUserEmail), { statuses }, { merge: true });
-            } catch (e) { console.error("Erreur sauvegarde statuts:", e); }
-        }
+async function saveStatuses() {
+    try {
+        await setDoc(doc(db, "statuses", currentUserEmail), { statuses, appliedDates, lastSeenCount }, { merge: true });
+    } catch (e) { console.error(e); }
+}
 
-        // --- CHARGEMENT DES OFFRES ---
-        async function loadStages(email) {
-            const container = document.getElementById('list-container');
-            container.innerHTML = "<p style='text-align:center; color:#86868b; margin-top:30px;'>Chargement des stages...</p>";
+async function loadStages() {
+    const container = document.getElementById('list-container');
+    container.innerHTML = "<p style='text-align:center;color:#86868b;margin-top:30px;'>Chargement...</p>";
+    const snap = await getDoc(doc(db, "jobs", currentUserEmail));
+    if (!snap.exists()) {
+        container.innerHTML = "<div class='empty-state'><div class='empty-icon'>📭</div>Bienvenue ! Tes offres apparaîtront demain matin.</div>";
+        return;
+    }
+    allOffers = snap.data().offers || [];
 
-            const docSnap = await getDoc(doc(db, "jobs", email.toLowerCase()));
-            if (!docSnap.exists()) {
-                container.innerHTML = "<p style='text-align:center; color:#86868b; margin-top:40px;'>Bienvenue ! Tes offres apparaîtront demain matin.</p>";
-                return;
-            }
+    const visibleCount = allOffers.filter(j => statuses[j.job_url] !== 'hidden').length;
+    if (lastSeenCount > 0 && visibleCount > lastSeenCount) {
+        const diff = visibleCount - lastSeenCount;
+        const banner = document.getElementById('new-banner');
+        banner.textContent = `✨ ${diff} nouvelle${diff > 1 ? 's' : ''} offre${diff > 1 ? 's' : ''} depuis ta dernière visite !`;
+        banner.classList.add('visible');
+    }
+    lastSeenCount = visibleCount;
+    await saveStatuses();
 
-            const allOffers = docSnap.data().offers || [];
-            // On filtre les offres masquées
-            currentOffers = allOffers.filter(j => statuses[j.job_url] !== 'hidden');
+    buildFilterBar();
+    updateStats();
+    renderOffers();
+    renderApplied();
+}
 
-            if (currentOffers.length === 0) {
-                container.innerHTML = "<p style='text-align:center; color:#86868b;'>Le robot n'a rien trouvé aujourd'hui.</p>";
-                document.getElementById('offer-count').style.display = 'none';
-                return;
-            }
+// ===== TABS =====
+window.switchTab = (tab) => {
+    document.getElementById('tab-offers-content').style.display = tab === 'offers' ? 'block' : 'none';
+    document.getElementById('tab-applied-content').style.display = tab === 'applied' ? 'block' : 'none';
+    document.getElementById('tab-btn-offers').classList.toggle('active', tab === 'offers');
+    document.getElementById('tab-btn-applied').classList.toggle('active', tab === 'applied');
+};
 
-            // Compteur
-            const countEl = document.getElementById('offer-count');
-            countEl.textContent = `${currentOffers.length} offre${currentOffers.length > 1 ? 's' : ''}`;
-            countEl.style.display = 'inline-block';
+// ===== STATS =====
+function updateStats() {
+    const visible = allOffers.filter(j => statuses[j.job_url] !== 'hidden').length;
+    const applied = Object.values(statuses).filter(v => v === 'applied').length;
+    const hidden = Object.values(statuses).filter(v => v === 'hidden').length;
 
-            renderOffers(container);
-        }
+    document.getElementById('stat-total').textContent = `${visible} offre${visible > 1 ? 's' : ''}`;
+    document.getElementById('stat-applied').textContent = `${applied} postulée${applied > 1 ? 's' : ''}`;
+    document.getElementById('stat-hidden').textContent = `${hidden} ignorée${hidden > 1 ? 's' : ''}`;
+    document.getElementById('badge-offers').textContent = visible;
 
-        // --- RENDU DES CARTES ---
-        function renderOffers(container) {
-            container.innerHTML = currentOffers.map((j, i) => {
-                const isApplied = statuses[j.job_url] === 'applied';
-                return `
-                    <div class="stage-card ${isApplied ? 'applied' : ''}" id="card-${i}">
-                        <div class="job-title">${j.title}</div>
-                        <div class="company">${j.company}</div>
-                        <div class="details">📍 ${j.location} • via ${j.site}</div>
-                        ${isApplied
-                            ? `<button class="btn-apple applied-btn" disabled>✓ Déjà postulé</button>`
-                            : `<button class="btn-apple" onclick="openModal(${i})">Voir l'offre →</button>`
-                        }
-                    </div>
-                `;
-            }).join('');
-        }
+    const ab = document.getElementById('badge-applied');
+    if (applied > 0) { ab.textContent = applied; ab.style.display = 'inline-flex'; }
+    else ab.style.display = 'none';
+}
 
-        // --- MODAL ---
-        window.openModal = (index) => {
-            const job = currentOffers[index];
-            activeJobUrl = job.job_url;
-            activeJobIndex = index;
+// ===== FILTER BAR =====
+function buildFilterBar() {
+    const cities = [...new Set(allOffers.map(j => j.location).filter(Boolean))];
+    const bar = document.getElementById('filter-bar');
+    if (cities.length <= 1) { bar.style.display = 'none'; return; }
+    bar.innerHTML = ['all', ...cities].map(city => `
+        <div class="filter-chip ${city === activeFilter ? 'active' : ''}" onclick="setFilter('${city}')">
+            ${city === 'all' ? '🗺 Toutes' : '📍 ' + city}
+        </div>`).join('');
+}
 
-            document.getElementById('modal-title').textContent = job.title;
-            document.getElementById('modal-company').textContent = job.company;
-            document.getElementById('modal-overlay').classList.add('open');
+window.setFilter = (city) => { activeFilter = city; buildFilterBar(); renderOffers(); };
 
-            // Ouvre le lien dans un nouvel onglet
-            window.open(job.job_url, '_blank');
-        };
+// ===== RENDER OFFERS =====
+function getVisibleOffers() {
+    return allOffers.filter(j => {
+        if (statuses[j.job_url] === 'hidden') return false;
+        if (activeFilter !== 'all' && j.location !== activeFilter) return false;
+        return true;
+    });
+}
 
-        // Fermer en cliquant l'overlay
-        document.getElementById('modal-overlay').addEventListener('click', (e) => {
-            if (e.target === document.getElementById('modal-overlay')) closeModal();
-        });
+function renderOffers() {
+    const container = document.getElementById('list-container');
+    const offers = getVisibleOffers();
+    const countEl = document.getElementById('offer-count');
 
-        function closeModal() {
-            document.getElementById('modal-overlay').classList.remove('open');
-            activeJobUrl = null;
-            activeJobIndex = null;
-        }
+    if (offers.length === 0) {
+        countEl.style.display = 'none';
+        container.innerHTML = "<div class='empty-state'><div class='empty-icon'>🔍</div>Aucune offre disponible pour le moment.</div>";
+        return;
+    }
 
-        // Bouton : J'ai postulé
-        document.getElementById('modal-applied').onclick = async () => {
-            if (!activeJobUrl) return;
-            statuses[activeJobUrl] = 'applied';
-            await saveStatuses();
+    countEl.textContent = `${offers.length} offre${offers.length > 1 ? 's' : ''}`;
+    countEl.style.display = 'inline-block';
 
-            // Met à jour la carte sans recharger
-            const card = document.getElementById(`card-${activeJobIndex}`);
-            if (card) {
-                card.classList.add('applied');
-                card.querySelector('button').outerHTML = `<button class="btn-apple applied-btn" disabled>✓ Déjà postulé</button>`;
-            }
-            closeModal();
-        };
+    container.innerHTML = offers.map((j, i) => {
+        const isApplied = statuses[j.job_url] === 'applied';
+        const dateStr = j.date_posted && j.date_posted !== 'nan' && j.date_posted !== 'None'
+            ? `📅 Publiée le ${j.date_posted}` : '';
+        return `
+        <div class="card-wrapper" id="wrapper-${i}">
+            <div class="swipe-bg">🗑</div>
+            <div class="stage-card ${isApplied ? 'applied-card' : ''}" id="card-${i}" data-index="${i}" data-url="${j.job_url}">
+                <div class="job-title">${j.title}</div>
+                <div class="company">${j.company}</div>
+                <div class="details">📍 ${j.location} • via ${j.site}</div>
+                ${dateStr ? `<div class="date-tag">${dateStr}</div>` : ''}
+                ${isApplied
+                    ? `<button class="btn-apple applied-btn" disabled>✓ Déjà postulé</button>`
+                    : `<button class="btn-apple" onclick="openModal(${i})">Voir l'offre →</button>`}
+            </div>
+        </div>`;
+    }).join('');
 
-        // Bouton : Plus tard
-        document.getElementById('modal-later').onclick = () => {
-            if (!activeJobUrl) return;
-            statuses[activeJobUrl] = 'later';
-            saveStatuses();
-            closeModal();
-        };
+    offers.forEach((_, i) => initSwipe(i));
+}
 
-        // Bouton : Pas intéressé
-        document.getElementById('modal-nope').onclick = async () => {
-            if (!activeJobUrl) return;
-            statuses[activeJobUrl] = 'hidden';
-            await saveStatuses();
+// ===== RENDER APPLIED =====
+function renderApplied() {
+    const container = document.getElementById('applied-container');
+    const applied = allOffers.filter(j => statuses[j.job_url] === 'applied');
+    const countEl = document.getElementById('applied-count');
 
-            // Supprime la carte avec animation
-            const card = document.getElementById(`card-${activeJobIndex}`);
-            if (card) {
-                card.style.transition = 'opacity 0.3s, transform 0.3s';
-                card.style.opacity = '0';
-                card.style.transform = 'translateX(30px)';
+    if (applied.length === 0) {
+        countEl.style.display = 'none';
+        container.innerHTML = "<div class='empty-state'><div class='empty-icon'>📝</div>Tu n'as pas encore postulé à une offre.</div>";
+        return;
+    }
+    countEl.textContent = `${applied.length}`;
+    countEl.style.display = 'inline-block';
+
+    container.innerHTML = applied.map((j, i) => {
+        const dateApplied = appliedDates[j.job_url] || '';
+        return `
+        <div class="stage-card applied-card" id="applied-card-${i}">
+            <div class="job-title">${j.title}</div>
+            <div class="company">${j.company}</div>
+            <div class="details">📍 ${j.location} • via ${j.site}</div>
+            ${dateApplied ? `<div class="date-tag">✅ Postulé le ${dateApplied}</div>` : ''}
+            <a href="${j.job_url}" target="_blank" class="btn-apple">Voir l'offre</a>
+            <div class="action-row">
+                <button class="btn-apple green-btn" onclick="confirmAccepted('${j.job_url}', ${i})">🎉 Accepté !</button>
+                <button class="btn-apple red-btn" onclick="confirmRefused('${j.job_url}', ${i})">😞 Refusé</button>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+// ===== ACCEPTED / REFUSED =====
+window.confirmAccepted = async (url, i) => {
+    statuses[url] = 'accepted';
+    await saveStatuses();
+    launchFireworks();
+};
+
+window.confirmRefused = async (url, i) => {
+    statuses[url] = 'hidden';
+    await saveStatuses();
+    const card = document.getElementById(`applied-card-${i}`);
+    if (card) {
+        card.style.transition = 'opacity 0.3s, transform 0.3s';
+        card.style.opacity = '0'; card.style.transform = 'translateX(30px)';
+        setTimeout(() => { card.remove(); updateStats(); renderApplied(); }, 300);
+    }
+};
+
+// ===== MODAL =====
+window.openModal = (index) => {
+    const offers = getVisibleOffers();
+    const job = offers[index];
+    if (!job) return;
+    activeJobUrl = job.job_url;
+    activeJobIndex = index;
+    document.getElementById('modal-title').textContent = job.title;
+    document.getElementById('modal-company').textContent = job.company;
+    document.getElementById('modal-overlay').classList.add('open');
+    window.open(job.job_url, '_blank');
+};
+
+document.getElementById('modal-overlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('modal-overlay')) closeModal();
+});
+
+function closeModal() {
+    document.getElementById('modal-overlay').classList.remove('open');
+    activeJobUrl = null; activeJobIndex = null;
+}
+
+document.getElementById('modal-applied-btn').onclick = async () => {
+    if (!activeJobUrl) return;
+    statuses[activeJobUrl] = 'applied';
+    appliedDates[activeJobUrl] = new Date().toLocaleDateString('fr-FR');
+    await saveStatuses();
+    updateStats(); renderOffers(); renderApplied(); closeModal();
+};
+
+document.getElementById('modal-later-btn').onclick = () => { saveStatuses(); closeModal(); };
+
+document.getElementById('modal-nope-btn').onclick = async () => {
+    if (!activeJobUrl) return;
+    statuses[activeJobUrl] = 'hidden';
+    await saveStatuses();
+    const wrapper = document.getElementById(`wrapper-${activeJobIndex}`);
+    if (wrapper) {
+        wrapper.style.transition = 'opacity 0.3s, transform 0.3s';
+        wrapper.style.opacity = '0'; wrapper.style.transform = 'translateX(30px)';
+        setTimeout(() => { wrapper.remove(); updateStats(); renderOffers(); }, 300);
+    }
+    closeModal();
+};
+
+// ===== SWIPE TO DISMISS =====
+function initSwipe(index) {
+    const card = document.getElementById(`card-${index}`);
+    if (!card) return;
+    let startX = 0, currentX = 0, isDragging = false;
+
+    card.addEventListener('touchstart', e => {
+        startX = e.touches[0].clientX; isDragging = true;
+        card.style.transition = 'none';
+    }, { passive: true });
+
+    card.addEventListener('touchmove', e => {
+        if (!isDragging) return;
+        currentX = e.touches[0].clientX - startX;
+        if (currentX < 0) card.style.transform = `translateX(${currentX}px)`;
+    }, { passive: true });
+
+    card.addEventListener('touchend', async () => {
+        isDragging = false;
+        card.style.transition = 'transform 0.3s ease';
+        if (currentX < -100) {
+            card.style.transform = 'translateX(-120%)';
+            const offers = getVisibleOffers();
+            const job = offers[index];
+            if (job) {
+                statuses[job.job_url] = 'hidden';
+                await saveStatuses();
                 setTimeout(() => {
-                    card.remove();
-                    // Met à jour le compteur
-                    currentOffers.splice(activeJobIndex, 1);
-                    const countEl = document.getElementById('offer-count');
-                    if (currentOffers.length === 0) {
-                        countEl.style.display = 'none';
-                        document.getElementById('list-container').innerHTML =
-                            "<p style='text-align:center; color:#86868b;'>Plus aucune offre disponible.</p>";
-                    } else {
-                        countEl.textContent = `${currentOffers.length} offre${currentOffers.length > 1 ? 's' : ''}`;
-                    }
+                    const wrapper = document.getElementById(`wrapper-${index}`);
+                    if (wrapper) wrapper.remove();
+                    updateStats(); renderOffers();
                 }, 300);
             }
-            closeModal();
-        };
-    </script>
+        } else {
+            card.style.transform = 'translateX(0)';
+        }
+        currentX = 0;
+    });
+}
+
+// ===== PULL TO REFRESH =====
+function initPullToRefresh() {
+    let startY = 0, pulling = false;
+    const indicator = document.getElementById('pull-indicator');
+
+    document.addEventListener('touchstart', e => {
+        if (window.scrollY === 0) { startY = e.touches[0].clientY; pulling = true; }
+    }, { passive: true });
+
+    document.addEventListener('touchmove', e => {
+        if (!pulling) return;
+        if (e.touches[0].clientY - startY > 60) indicator.style.display = 'block';
+    }, { passive: true });
+
+    document.addEventListener('touchend', async () => {
+        if (!pulling) return;
+        pulling = false;
+        if (indicator.style.display === 'block') {
+            await loadStages();
+            indicator.style.display = 'none';
+        }
+    });
+}
+
+// ===== POLLING =====
+function startPolling() {
+    setInterval(async () => {
+        try {
+            const snap = await getDoc(doc(db, "jobs", currentUserEmail));
+            if (!snap.exists()) return;
+            const newOffers = snap.data().offers || [];
+            const newVisible = newOffers.filter(j => statuses[j.job_url] !== 'hidden').length;
+            if (newVisible > lastSeenCount) {
+                const diff = newVisible - lastSeenCount;
+                const banner = document.getElementById('new-banner');
+                banner.textContent = `✨ ${diff} nouvelle${diff > 1 ? 's' : ''} offre${diff > 1 ? 's' : ''} disponible${diff > 1 ? 's' : ''} !`;
+                banner.classList.add('visible');
+            }
+        } catch {}
+    }, 5 * 60 * 1000);
+}
+
+window.dismissBanner = async () => {
+    document.getElementById('new-banner').classList.remove('visible');
+    await loadStages();
+};
+
+// ===== FIREWORKS =====
+window.launchFireworks = () => {
+    const overlay = document.getElementById('fireworks-overlay');
+    overlay.classList.add('show');
+    const canvas = document.getElementById('fireworks-canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const particles = [];
+    const colors = ['#e2001a','#34c759','#ff9f0a','#0a84ff','#ff375f','#ffd60a','#30d158','#ffffff'];
+
+    for (let i = 0; i < 14; i++) {
+        setTimeout(() => {
+            const x = 80 + Math.random() * (canvas.width - 160);
+            const y = 60 + Math.random() * (canvas.height * 0.55);
+            for (let k = 0; k < 70; k++) {
+                const angle = (Math.PI * 2 / 70) * k;
+                const speed = 2 + Math.random() * 6;
+                particles.push({
+                    x, y,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    alpha: 1,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    size: 2 + Math.random() * 4
+                });
+            }
+        }, i * 250);
+    }
+
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (let i = particles.length - 1; i >= 0; i--) {
+            const p = particles[i];
+            p.x += p.vx; p.y += p.vy;
+            p.vy += 0.07; p.alpha -= 0.011;
+            if (p.alpha <= 0) { particles.splice(i, 1); continue; }
+            ctx.save();
+            ctx.globalAlpha = p.alpha;
+            ctx.fillStyle = p.color;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+        }
+        fireworksAnimId = requestAnimationFrame(animate);
+    }
+    animate();
+    setTimeout(() => { cancelAnimationFrame(fireworksAnimId); }, 9000);
+};
+
+window.closeFireworks = () => {
+    document.getElementById('fireworks-overlay').classList.remove('show');
+    cancelAnimationFrame(fireworksAnimId);
+    const ctx = document.getElementById('fireworks-canvas').getContext('2d');
+    ctx.clearRect(0, 0, 9999, 9999);
+};
+</script>
 </body>
 </html>
