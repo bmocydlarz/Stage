@@ -772,14 +772,20 @@ window.dismissBanner = async () => {
 async function loadConfig() {
     const errorEl = document.getElementById('api-error');
     try {
-        const res = await fetch(API_URL + '/config');
+        // AJOUT DU HEADER NGROK SECRET ICI 👇
+        const res = await fetch(API_URL + '/config', {
+            headers: { 'ngrok-skip-browser-warning': 'true' }
+        });
+        
         if (!res.ok) throw new Error();
         const config = await res.json();
+        
         keywords = config.mots_cles || [];
         document.getElementById('delay-input').value = config.jobspy_delay || 6;
         errorEl.style.display = 'none';
         renderKeywords();
-    } catch {
+    } catch (err) {
+        console.error("Erreur de parsing:", err);
         errorEl.style.display = 'block';
         document.getElementById('kw-list').innerHTML = '';
         document.getElementById('kw-count').style.display = 'none';
@@ -829,7 +835,10 @@ window.saveConfig = async () => {
     try {
         const res = await fetch(API_URL + '/config', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'ngrok-skip-browser-warning': 'true' // <-- AJOUT ICI
+            },
             body: JSON.stringify({
                 mots_cles: keywords,
                 jobspy_delay: parseInt(document.getElementById('delay-input').value) || 6
