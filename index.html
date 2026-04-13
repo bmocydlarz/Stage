@@ -1102,6 +1102,7 @@ Ne génère que le corps de la lettre (sans en-tête ni adresse), en commençant
         });
 
         const data = await response.json();
+        console.log("Réponse API:", data);
         const text = data.content?.[0]?.text || "Erreur lors de la génération.";
         lmText.textContent = text;
 
