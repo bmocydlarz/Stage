@@ -367,6 +367,16 @@
                 ❌ Impossible de contacter l'API Flask sur ton NAS.<br>
                 Vérifie que <code>api.py</code> tourne bien sur <code>192.168.1.27:5055</code>.
             </div>
+            <div style="margin-top: 28px; border-top: 0.5px solid #e0e0e0; padding-top: 24px;">
+    <div class="admin-section-title">Rafraîchissement manuel</div>
+    <p style="font-size:0.83rem;color:var(--text-sub);margin-bottom:14px;">
+        Lance le scraper immédiatement sans attendre le cron de 7h.
+    </p>
+    <button class="btn-apple" onclick="runScraper()" id="run-scraper-btn">
+        🔄 Lancer le scraper maintenant
+    </button>
+    <div id="scraper-status" style="text-align:center;font-size:0.85rem;margin-top:14px;color:var(--text-sub);min-height:20px;"></div>
+            </div>
         </div>
     </div>
 
