@@ -958,47 +958,55 @@ window.runScraper = async () => {
         });
         if (!res.ok) throw new Error();
 
-        // Petite pause pour que le scraper démarre et crée le log
-        await new Promise(r => setTimeout(r, 1500));
+        status.style.color = 'var(--text-sub)';
+        status.textContent = "⚙️ Scraper en cours d'exécution...";
 
-        // Connexion SSE
-        const evtSource = new EventSource(API_URL + '/scraper-logs');
+        // Attend 2s que le scraper démarre
+        await new Promise(r => setTimeout(r, 2000));
 
-        evtSource.onmessage = (e) => {
-            if (e.data === '__DONE__') {
-                evtSource.close();
-                status.style.color = 'var(--green)';
-                status.textContent = '✅ Terminé ! Tire vers le bas pour voir les nouvelles offres.';
-                btn.textContent = '🔄 Lancer le scraper maintenant';
-                btn.disabled = false;
-                setTimeout(() => status.textContent = '', 10000);
-                return;
-            }
+        let offset = 0;
 
-            // Colorisation selon le contenu
-            let color = '#e5e5ea';
-            if (e.data.includes('ERROR') || e.data.includes('Erreur') || e.data.includes('❌')) color = '#ff453a';
-            else if (e.data.includes('WARNING') || e.data.includes('warning')) color = '#ff9f0a';
-            else if (e.data.includes('✅') || e.data.includes('TERMINÉ') || e.data.includes('connecté')) color = '#30d158';
-            else if (e.data.includes('PHASE') || e.data.includes('DÉMARRAGE')) color = '#0a84ff';
+        // Récupère l'offset de départ depuis le serveur
+        const initRes = await fetch(API_URL + '/scraper-logs?offset=0', {
+            headers: { 'ngrok-skip-browser-warning': 'true' }
+        });
+        const initData = await initRes.json();
+        offset = initData.offset; // on ignore les lignes passées, on part de maintenant
 
-            const line = document.createElement('div');
-            line.style.color = color;
-            line.style.borderBottom = '0.5px solid rgba(255,255,255,0.05)';
-            line.style.paddingBottom = '3px';
-            line.style.marginBottom = '3px';
-            line.textContent = e.data;
-            logLines.appendChild(line);
+        // Poll toutes les 2s
+        const interval = setInterval(async () => {
+            try {
+                const r = await fetch(API_URL + `/scraper-logs?offset=${offset}`, {
+                    headers: { 'ngrok-skip-browser-warning': 'true' }
+                });
+                const data = await r.json();
 
-            // Auto-scroll vers le bas
-            logBox.scrollTop = logBox.scrollHeight;
-        };
+                data.lines.forEach(line => {
+                    let color = '#e5e5ea';
+                    if (line.includes('ERROR') || line.includes('Erreur') || line.includes('❌')) color = '#ff453a';
+                    else if (line.includes('WARNING')) color = '#ff9f0a';
+                    else if (line.includes('✅') || line.includes('TERMINÉ') || line.includes('connecté')) color = '#30d158';
+                    else if (line.includes('PHASE') || line.includes('DÉMARRAGE')) color = '#0a84ff';
 
-        evtSource.onerror = () => {
-            evtSource.close();
-            btn.textContent = '🔄 Lancer le scraper maintenant';
-            btn.disabled = false;
-        };
+                    const div = document.createElement('div');
+                    div.style.cssText = `color:${color};border-bottom:0.5px solid rgba(255,255,255,0.05);padding-bottom:3px;margin-bottom:3px;`;
+                    div.textContent = line;
+                    logLines.appendChild(div);
+                    logBox.scrollTop = logBox.scrollHeight;
+                });
+
+                offset = data.offset;
+
+                if (data.done) {
+                    clearInterval(interval);
+                    status.style.color = 'var(--green)';
+                    status.textContent = '✅ Terminé ! Tire vers le bas pour voir les nouvelles offres.';
+                    btn.textContent = '🔄 Lancer le scraper maintenant';
+                    btn.disabled = false;
+                    setTimeout(() => status.textContent = '', 10000);
+                }
+            } catch { clearInterval(interval); }
+        }, 2000);
 
     } catch {
         status.style.color = 'var(--red)';
