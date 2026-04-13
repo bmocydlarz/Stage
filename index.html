@@ -930,6 +930,48 @@ window.closeFireworks = () => {
     const ctx = document.getElementById('fireworks-canvas').getContext('2d');
     ctx.clearRect(0, 0, 9999, 9999);
 };
+
+window.runScraper = async () => {
+    const btn = document.getElementById('run-scraper-btn');
+    const status = document.getElementById('scraper-status');
+
+    btn.textContent = '⏳ Lancement en cours...';
+    btn.disabled = true;
+
+    try {
+        const res = await fetch(API_URL + '/run-scraper', {
+            method: 'POST',
+            headers: { 'ngrok-skip-browser-warning': 'true' }
+        });
+        if (!res.ok) throw new Error();
+
+        status.style.color = 'var(--text-sub)';
+        status.textContent = "⚙️ Scraper en cours d'exécution...";
+
+        const interval = setInterval(async () => {
+            try {
+                const r = await fetch(API_URL + '/scraper-status', {
+                    headers: { 'ngrok-skip-browser-warning': 'true' }
+                });
+                const data = await r.json();
+                if (data.status === 'idle') {
+                    clearInterval(interval);
+                    status.style.color = 'var(--green)';
+                    status.textContent = '✅ Terminé ! Tire vers le bas pour voir les nouvelles offres.';
+                    btn.textContent = '🔄 Lancer le scraper maintenant';
+                    btn.disabled = false;
+                    setTimeout(() => status.textContent = '', 10000);
+                }
+            } catch { clearInterval(interval); }
+        }, 5000);
+
+    } catch {
+        status.style.color = 'var(--red)';
+        status.textContent = '❌ Erreur — NAS injoignable.';
+        btn.textContent = '🔄 Lancer le scraper maintenant';
+        btn.disabled = false;
+    }
+};
 </script>
 </body>
 </html>
