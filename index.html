@@ -377,6 +377,14 @@
     </button>
     <div id="scraper-status" style="text-align:center;font-size:0.85rem;margin-top:14px;color:var(--text-sub);min-height:20px;"></div>
             </div>
+            <div id="scraper-log-box" style="display:none;margin-top:16px;background:#1c1c1e;border-radius:14px;padding:16px;max-height:300px;overflow-y:auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <span style="color:#636366;font-size:0.75rem;font-weight:600;text-transform:uppercase;">Logs en direct</span>
+        <button onclick="document.getElementById('scraper-log-box').style.display='none'"
+            style="background:none;border:none;color:#636366;font-size:1rem;cursor:pointer;">✕</button>
+    </div>
+    <div id="scraper-log-lines" style="font-family:monospace;font-size:0.75rem;color:#e5e5ea;line-height:1.6;"></div>
+            </div>
         </div>
     </div>
 
@@ -934,9 +942,14 @@ window.closeFireworks = () => {
 window.runScraper = async () => {
     const btn = document.getElementById('run-scraper-btn');
     const status = document.getElementById('scraper-status');
+    const logBox = document.getElementById('scraper-log-box');
+    const logLines = document.getElementById('scraper-log-lines');
 
     btn.textContent = '⏳ Lancement en cours...';
     btn.disabled = true;
+    logLines.innerHTML = '';
+    logBox.style.display = 'block';
+    status.textContent = '';
 
     try {
         const res = await fetch(API_URL + '/run-scraper', {
@@ -945,31 +958,54 @@ window.runScraper = async () => {
         });
         if (!res.ok) throw new Error();
 
-        status.style.color = 'var(--text-sub)';
-        status.textContent = "⚙️ Scraper en cours d'exécution...";
+        // Petite pause pour que le scraper démarre et crée le log
+        await new Promise(r => setTimeout(r, 1500));
 
-        const interval = setInterval(async () => {
-            try {
-                const r = await fetch(API_URL + '/scraper-status', {
-                    headers: { 'ngrok-skip-browser-warning': 'true' }
-                });
-                const data = await r.json();
-                if (data.status === 'idle') {
-                    clearInterval(interval);
-                    status.style.color = 'var(--green)';
-                    status.textContent = '✅ Terminé ! Tire vers le bas pour voir les nouvelles offres.';
-                    btn.textContent = '🔄 Lancer le scraper maintenant';
-                    btn.disabled = false;
-                    setTimeout(() => status.textContent = '', 10000);
-                }
-            } catch { clearInterval(interval); }
-        }, 5000);
+        // Connexion SSE
+        const evtSource = new EventSource(API_URL + '/scraper-logs');
+
+        evtSource.onmessage = (e) => {
+            if (e.data === '__DONE__') {
+                evtSource.close();
+                status.style.color = 'var(--green)';
+                status.textContent = '✅ Terminé ! Tire vers le bas pour voir les nouvelles offres.';
+                btn.textContent = '🔄 Lancer le scraper maintenant';
+                btn.disabled = false;
+                setTimeout(() => status.textContent = '', 10000);
+                return;
+            }
+
+            // Colorisation selon le contenu
+            let color = '#e5e5ea';
+            if (e.data.includes('ERROR') || e.data.includes('Erreur') || e.data.includes('❌')) color = '#ff453a';
+            else if (e.data.includes('WARNING') || e.data.includes('warning')) color = '#ff9f0a';
+            else if (e.data.includes('✅') || e.data.includes('TERMINÉ') || e.data.includes('connecté')) color = '#30d158';
+            else if (e.data.includes('PHASE') || e.data.includes('DÉMARRAGE')) color = '#0a84ff';
+
+            const line = document.createElement('div');
+            line.style.color = color;
+            line.style.borderBottom = '0.5px solid rgba(255,255,255,0.05)';
+            line.style.paddingBottom = '3px';
+            line.style.marginBottom = '3px';
+            line.textContent = e.data;
+            logLines.appendChild(line);
+
+            // Auto-scroll vers le bas
+            logBox.scrollTop = logBox.scrollHeight;
+        };
+
+        evtSource.onerror = () => {
+            evtSource.close();
+            btn.textContent = '🔄 Lancer le scraper maintenant';
+            btn.disabled = false;
+        };
 
     } catch {
         status.style.color = 'var(--red)';
         status.textContent = '❌ Erreur — NAS injoignable.';
         btn.textContent = '🔄 Lancer le scraper maintenant';
         btn.disabled = false;
+        logBox.style.display = 'none';
     }
 };
 </script>
