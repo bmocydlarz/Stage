@@ -400,8 +400,19 @@
         <div class="modal-actions">
             <button class="modal-btn green" id="modal-applied-btn">✅ J'ai postulé</button>
             <button class="modal-btn gray" id="modal-later-btn">🕐 Je postule plus tard</button>
+            <button class="modal-btn" id="modal-lm-btn" style="background:#f2f2f7;color:#000;">✍️ Générer une lettre de motivation</button>
             <button class="modal-btn red" id="modal-nope-btn">❌ Ça ne m'intéresse pas</button>
         </div>
+
+        <!-- LETTRE DE MOTIVATION -->
+        <div id="lm-container" style="display:none;margin-top:20px;border-top:1px solid #e0e0e0;padding-top:16px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                <span style="font-size:0.8rem;font-weight:700;color:#86868b;text-transform:uppercase;">Lettre de motivation</span>
+                <button onclick="copyLM()" style="background:none;border:none;color:var(--enise-red);font-size:0.85rem;font-weight:600;cursor:pointer;">📋 Copier</button>
+            </div>
+            <div id="lm-text" style="font-size:0.82rem;line-height:1.7;color:#1d1d1f;white-space:pre-wrap;max-height:400px;overflow-y:auto;background:#f9f9f9;padding:14px;border-radius:12px;"></div>
+        </div>
+
     </div>
 </div>
 
@@ -1015,6 +1026,101 @@ window.runScraper = async () => {
         btn.disabled = false;
         logBox.style.display = 'none';
     }
+};
+
+const MON_PROFIL = `
+Nom : Baptiste Mocydlarz
+Formation : Étudiant ingénieur Génie Mécanique à l'École Centrale de Lyon-Saint-Étienne (ENISE), diplôme prévu en 2028.
+Formations précédentes : Licence Génie Mécanique et Développement Durable (Université d'Artois, 2024-2025), BUT Génie Mécanique et Productique (Université de Lille, 2021-2024).
+Adresse : 10 Allée des Paturelles, 59890 Quesnoy-sur-Deûle
+Email : baptiste.mocydlarz@etu-enise.ec-lyon.fr | Tél : 07 69 14 55 05
+
+Expériences :
+- Stage Responsable de Projet chez OptilogiX.0 (Avril-Juin 2025) : Conception produit publicitaire sur SolidWorks, fabrication (impression 3D, découpe laser), étude d'intégration en chaîne de production.
+- Stage Dessinateur-Projeteur chez ESCOFI (Mars-Juin 2024) : Plans d'exécutions, photomontages photovoltaïques, procédures AutoCAD.
+- Stage Dessinateur-Projeteur chez KEOLIS (Janv-Mars 2023) : Exploitation données, référencement composants AutoCAD, export Excel, repérage terrain.
+
+Projets :
+- Développement d'un système autonome de collecte de déchets avec IA (YOLO, mAP50: 0.80, 30.5ms/image).
+- Conception CAO d'un support complexe en plexiglas sur SolidWorks + industrialisation (découpe laser LightBurn).
+- Reconception d'un système d'étanchéité (norme ATEX), dossiers CAO/FAO sur Inventor et CATIA.
+
+Compétences logiciels : SolidWorks, AutoCAD, Inventor, CATIA, ArtoGreen, MATLAB, NCSIMUL.
+Machines-outils : Fraiseuses, tours conventionnels et CN, imprimante 3D, découpeuse laser.
+Langues : Anglais B2 (TOEIC), Espagnol B1, Allemand A2.
+Centres d'intérêt : Mécanique, réparation smartphones, musique (pratique de plusieurs instruments en orchestre), CAO, course à pied.
+`;
+
+const MODELE_LETTRE = `
+Format de la lettre : professionnelle, 4-5 paragraphes structurés comme suit :
+1. Introduction : poste visé, formation actuelle, disponibilité
+2. Compétences techniques et expériences en lien avec l'offre
+3. Motivation spécifique pour l'entreprise et le poste (adapté à l'offre)
+4. Qualités personnelles + mention de la pratique musicale en orchestre comme illustration de rigueur et travail d'équipe
+5. Formule de politesse et invitation à un entretien
+
+Style : sérieux, professionnel, humain, sans sur-utilisation d'adjectifs. Tutoiement interdit. Longueur : environ 400-500 mots. Langue : français.
+Commencer par "Madame, Monsieur," sauf si le nom du recruteur est connu.
+Ne pas inventer de compétences non présentes dans le profil.
+`;
+
+document.getElementById('modal-lm-btn').onclick = async () => {
+    const lmContainer = document.getElementById('lm-container');
+    const lmText = document.getElementById('lm-text');
+    lmContainer.style.display = 'block';
+    lmText.textContent = '⏳ Génération en cours...';
+
+    // Scroll vers la lettre
+    lmContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    const job = allOffers.find(j => j.job_url === activeJobUrl);
+    if (!job) return;
+
+    try {
+        const response = await fetch("https://api.anthropic.com/v1/messages", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                model: "claude-sonnet-4-20250514",
+                max_tokens: 1000,
+                messages: [{
+                    role: "user",
+                    content: `Tu es un expert en rédaction de lettres de motivation professionnelles en français.
+
+Voici le profil du candidat :
+${MON_PROFIL}
+
+Instructions de format :
+${MODELE_LETTRE}
+
+Voici l'offre de stage pour laquelle il candidate :
+- Titre du poste : ${job.title}
+- Entreprise : ${job.company}
+- Localisation : ${job.location}
+- Source : ${job.site}
+
+Génère une lettre de motivation personnalisée et adaptée à cette offre spécifique. 
+Ne génère que le corps de la lettre (sans en-tête ni adresse), en commençant directement par la formule d'appel.`
+                }]
+            })
+        });
+
+        const data = await response.json();
+        const text = data.content?.[0]?.text || "Erreur lors de la génération.";
+        lmText.textContent = text;
+
+    } catch (err) {
+        lmText.textContent = "❌ Erreur lors de la génération. Vérifie ta connexion.";
+    }
+};
+
+window.copyLM = () => {
+    const text = document.getElementById('lm-text').textContent;
+    navigator.clipboard.writeText(text).then(() => {
+        const btn = document.querySelector('#lm-container button');
+        btn.textContent = '✅ Copié !';
+        setTimeout(() => btn.textContent = '📋 Copier', 2000);
+    });
 };
 </script>
 </body>
