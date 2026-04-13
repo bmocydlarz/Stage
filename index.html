@@ -1069,23 +1069,20 @@ document.getElementById('modal-lm-btn').onclick = async () => {
     const lmText = document.getElementById('lm-text');
     lmContainer.style.display = 'block';
     lmText.textContent = '⏳ Génération en cours...';
-
-    // Scroll vers la lettre
     lmContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
     const job = allOffers.find(j => j.job_url === activeJobUrl);
     if (!job) return;
 
     try {
-        const response = await fetch("https://api.anthropic.com/v1/messages", {
+        const response = await fetch(API_URL + '/generate-lm', {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+                "Content-Type": "application/json",
+                "ngrok-skip-browser-warning": "true"
+            },
             body: JSON.stringify({
-                model: "claude-sonnet-4-20250514",
-                max_tokens: 1000,
-                messages: [{
-                    role: "user",
-                    content: `Tu es un expert en rédaction de lettres de motivation professionnelles en français.
+                prompt: `Tu es un expert en rédaction de lettres de motivation professionnelles en français.
 
 Voici le profil du candidat :
 ${MON_PROFIL}
@@ -1099,9 +1096,8 @@ Voici l'offre de stage pour laquelle il candidate :
 - Localisation : ${job.location}
 - Source : ${job.site}
 
-Génère une lettre de motivation personnalisée et adaptée à cette offre spécifique. 
+Génère une lettre de motivation personnalisée et adaptée à cette offre spécifique.
 Ne génère que le corps de la lettre (sans en-tête ni adresse), en commençant directement par la formule d'appel.`
-                }]
             })
         });
 
@@ -1112,15 +1108,6 @@ Ne génère que le corps de la lettre (sans en-tête ni adresse), en commençant
     } catch (err) {
         lmText.textContent = "❌ Erreur lors de la génération. Vérifie ta connexion.";
     }
-};
-
-window.copyLM = () => {
-    const text = document.getElementById('lm-text').textContent;
-    navigator.clipboard.writeText(text).then(() => {
-        const btn = document.querySelector('#lm-container button');
-        btn.textContent = '✅ Copié !';
-        setTimeout(() => btn.textContent = '📋 Copier', 2000);
-    });
 };
 </script>
 </body>
