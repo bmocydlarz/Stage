@@ -406,12 +406,15 @@
 
         <!-- LETTRE DE MOTIVATION -->
         <div id="lm-container" style="display:none;margin-top:20px;border-top:1px solid #e0e0e0;padding-top:16px;">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-                <span style="font-size:0.8rem;font-weight:700;color:#86868b;text-transform:uppercase;">Lettre de motivation</span>
-                <button onclick="copyLM()" style="background:none;border:none;color:var(--enise-red);font-size:0.85rem;font-weight:600;cursor:pointer;">📋 Copier</button>
-            </div>
-            <div id="lm-text" style="font-size:0.82rem;line-height:1.7;color:#1d1d1f;white-space:pre-wrap;max-height:400px;overflow-y:auto;background:#f9f9f9;padding:14px;border-radius:12px;"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <span style="font-size:0.8rem;font-weight:700;color:#86868b;text-transform:uppercase;">Lettre de motivation</span>
+        <div style="display:flex;gap:8px;">
+            <button onclick="copyLM()" style="background:none;border:none;color:var(--enise-red);font-size:0.85rem;font-weight:600;cursor:pointer;">📋 Copier</button>
+            <button onclick="downloadPDF()" id="pdf-btn" style="background:var(--enise-red);color:white;border:none;border-radius:8px;padding:5px 12px;font-size:0.85rem;font-weight:600;cursor:pointer;">⬇️ PDF</button>
         </div>
+    </div>
+    <div id="lm-text" style="font-size:0.82rem;line-height:1.7;color:#1d1d1f;white-space:pre-wrap;max-height:400px;overflow-y:auto;background:#f9f9f9;padding:14px;border-radius:12px;"></div>
+</div>
 
     </div>
 </div>
@@ -1109,6 +1112,44 @@ Ne génère que le corps de la lettre (sans en-tête ni adresse), en commençant
     } catch (err) {
         lmText.textContent = "❌ Erreur lors de la génération. Vérifie ta connexion.";
     }
+};
+
+    window.downloadPDF = async () => {
+    const btn = document.getElementById('pdf-btn');
+    const lmText = document.getElementById('lm-text').textContent;
+    const job = allOffers.find(j => j.job_url === activeJobUrl);
+    if (!job || !lmText) return;
+
+    btn.textContent = '⏳...';
+    btn.disabled = true;
+
+    try {
+        const response = await fetch(API_URL + '/generate-lm-pdf', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'ngrok-skip-browser-warning': 'true'
+            },
+            body: JSON.stringify({
+                letter_text: lmText,
+                company: job.company,
+                job_title: job.title
+            })
+        });
+
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `LM_${job.company.replace(/\s+/g, '_')}.pdf`;
+        a.click();
+        URL.revokeObjectURL(url);
+    } catch (err) {
+        alert('❌ Erreur lors de la génération du PDF.');
+    }
+
+    btn.textContent = '⬇️ PDF';
+    btn.disabled = false;
 };
 </script>
 </body>
