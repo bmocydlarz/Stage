@@ -346,24 +346,27 @@
     <!-- TAB ADMIN -->
     <div id="tab-admin-content" style="display:none;">
         <div class="container">
-            <div class="section-header" style="margin-top:16px;">
-                <span class="section-label">Mots-clés JOBTEASER</span>
-                <span class="offer-count" id="kw-count" style="background:#636366;display:none"></span>
-            </div>
-            <div id="kw-list"></div>
-            <div style="display:flex;gap:8px;margin:12px 0 24px;">
-                <input type="text" id="kw-input" placeholder="Nouveau mot-clé...">
-                <button class="btn-apple" id="kw-add-btn" style="width:auto;padding:12px 20px;font-size:1.2rem;">+</button>
-            </div>
-            <div class="section-header" style="margin-top:16px;">
-                <span class="section-label">Mots-clés JOBSPY</span>
-                <span class="offer-count" id="kw-count" style="background:#636366;display:none"></span>
-            </div>
-            <div id="kw-list"></div>
-            <div style="display:flex;gap:8px;margin:12px 0 24px;">
-                <input type="text" id="kw-input" placeholder="Nouveau mot-clé...">
-                <button class="btn-apple" id="kw-add-btn" style="width:auto;padding:12px 20px;font-size:1.2rem;">+</button>
-            </div>
+           <!-- JOBTEASER -->
+<div class="section-header" style="margin-top:16px;">
+    <span class="section-label">Mots-clés JOBTEASER</span>
+    <span class="offer-count" id="kw-count-jt" style="background:#636366;display:none"></span>
+</div>
+<div id="kw-list-jt"></div>
+<div style="display:flex;gap:8px;margin:12px 0 24px;">
+    <input type="text" id="kw-input-jt" placeholder="Nouveau mot-clé JobTeaser...">
+    <button class="btn-apple" id="kw-add-btn-jt" style="width:auto;padding:12px 20px;font-size:1.2rem;">+</button>
+</div>
+
+<!-- JOBSPY -->
+<div class="section-header" style="margin-top:16px;">
+    <span class="section-label">Mots-clés JOBSPY</span>
+    <span class="offer-count" id="kw-count-js" style="background:#636366;display:none"></span>
+</div>
+<div id="kw-list-js"></div>
+<div style="display:flex;gap:8px;margin:12px 0 24px;">
+    <input type="text" id="kw-input-js" placeholder="Nouveau mot-clé JobSpy...">
+    <button class="btn-apple" id="kw-add-btn-js" style="width:auto;padding:12px 20px;font-size:1.2rem;">+</button>
+</div>
             <div class="admin-section-title">Délai anti-ban (secondes)</div>
             <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px;">
                 <input type="number" id="delay-input" min="2" max="30" value="6"
@@ -823,34 +826,38 @@ window.dismissBanner = async () => {
 };
 
 // ===== ADMIN =====
+let keywordsJT = [];
+let keywordsJS = [];
+
 async function loadConfig() {
     const errorEl = document.getElementById('api-error');
     try {
-        // AJOUT DU HEADER NGROK SECRET ICI 👇
         const res = await fetch(API_URL + '/config', {
             headers: { 'ngrok-skip-browser-warning': 'true' }
         });
-        
         if (!res.ok) throw new Error();
         const config = await res.json();
-        
-        keywords = config.mots_cles || [];
+
+        keywordsJT = config.mots_cles_jobteaser || [];
+        keywordsJS = config.mots_cles_jobspy || [];
         document.getElementById('delay-input').value = config.jobspy_delay || 6;
         errorEl.style.display = 'none';
-        renderKeywords();
+        renderKeywords('jt');
+        renderKeywords('js');
     } catch (err) {
         console.error("Erreur de parsing:", err);
         errorEl.style.display = 'block';
-        document.getElementById('kw-list').innerHTML = '';
-        document.getElementById('kw-count').style.display = 'none';
     }
 }
 
-function renderKeywords() {
-    const list = document.getElementById('kw-list');
-    const countEl = document.getElementById('kw-count');
+function renderKeywords(source) {
+    const keywords = source === 'jt' ? keywordsJT : keywordsJS;
+    const list = document.getElementById(`kw-list-${source}`);
+    const countEl = document.getElementById(`kw-count-${source}`);
+
     countEl.textContent = keywords.length + ' mot' + (keywords.length > 1 ? 's-clés' : '-clé');
     countEl.style.display = 'inline-block';
+
     if (keywords.length === 0) {
         list.innerHTML = "<p style='color:var(--text-sub);text-align:center;padding:20px 0;'>Aucun mot-clé configuré.</p>";
         return;
@@ -858,28 +865,40 @@ function renderKeywords() {
     list.innerHTML = keywords.map((kw, i) => `
         <div class="kw-tag">
             <span>${kw}</span>
-            <button class="kw-delete" data-i="${i}">✕</button>
+            <button class="kw-delete" data-i="${i}" data-source="${source}">✕</button>
         </div>`).join('');
+
     list.querySelectorAll('.kw-delete').forEach(btn => {
         btn.addEventListener('click', () => {
-            keywords.splice(parseInt(btn.dataset.i), 1);
-            renderKeywords();
+            const src = btn.dataset.source;
+            if (src === 'jt') keywordsJT.splice(parseInt(btn.dataset.i), 1);
+            else keywordsJS.splice(parseInt(btn.dataset.i), 1);
+            renderKeywords(src);
         });
     });
 }
 
-document.getElementById('kw-add-btn').addEventListener('click', () => {
-    const input = document.getElementById('kw-input');
-    const val = input.value.trim();
-    if (!val || keywords.includes(val)) { input.value = ''; return; }
-    keywords.push(val);
-    input.value = '';
-    renderKeywords();
-});
+function setupAddButton(source) {
+    const inputEl = document.getElementById(`kw-input-${source}`);
+    const btnEl = document.getElementById(`kw-add-btn-${source}`);
 
-document.getElementById('kw-input').addEventListener('keydown', e => {
-    if (e.key === 'Enter') document.getElementById('kw-add-btn').click();
-});
+    btnEl.addEventListener('click', () => {
+        const val = inputEl.value.trim();
+        const keywords = source === 'jt' ? keywordsJT : keywordsJS;
+        if (!val || keywords.includes(val)) { inputEl.value = ''; return; }
+        if (source === 'jt') keywordsJT.push(val);
+        else keywordsJS.push(val);
+        inputEl.value = '';
+        renderKeywords(source);
+    });
+
+    inputEl.addEventListener('keydown', e => {
+        if (e.key === 'Enter') btnEl.click();
+    });
+}
+
+setupAddButton('jt');
+setupAddButton('js');
 
 window.saveConfig = async () => {
     const btn = document.getElementById('save-btn');
@@ -889,12 +908,13 @@ window.saveConfig = async () => {
     try {
         const res = await fetch(API_URL + '/config', {
             method: 'POST',
-            headers: { 
+            headers: {
                 'Content-Type': 'application/json',
-                'ngrok-skip-browser-warning': 'true' // <-- AJOUT ICI
+                'ngrok-skip-browser-warning': 'true'
             },
             body: JSON.stringify({
-                mots_cles: keywords,
+                mots_cles_jobspy: keywordsJS,
+                mots_cles_jobteaser: keywordsJT,
                 jobspy_delay: parseInt(document.getElementById('delay-input').value) || 6
             })
         });
